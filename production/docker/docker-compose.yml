@@ -1,0 +1,19 @@
+# Start the service with the command 'docker-compose up -d'
+
+services:
+    rest2nostr:
+      build: .
+      container_name: rest2nostr
+      logging:
+        driver: 'json-file'
+        options:
+          max-size: '10m'
+          max-file: '10'
+      #mem_limit: 500mb
+      #links:
+      #  - mongo-slp-indexer
+      ports:
+        - '5942:5942' # <host port>:<container port>
+      volumes:
+        - ./start-rest2nostr.sh:/home/safeuser/REST2NOSTR/start-rest2nostr.sh
+      restart: always

@@ -1,0 +1,9 @@
+{
+  "name": "REST2NOSTR Proxy API",
+  "version": "1.0.0",
+  "description": "REST API proxy for Nostr WebSocket protocol",
+  "title": "REST2NOSTR Proxy API",
+  "url": "https://nostr-relay-api.psfoundation.info",
+  "sampleUrl": "https://nostr-relay-api.psfoundation.info"
+}
+
