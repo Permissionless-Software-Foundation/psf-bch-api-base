@@ -20,7 +20,6 @@ class FullNodeRPCAdapter {
       rpcPassword,
       rpcTimeoutMs = 15000
     } = this.config.fullNode
-    console.log('this.config.fullNode', this.config.fullNode)
 
     this.requestIdPrefix = this.config.fullNode.rpcRequestIdPrefix || 'psf-bch-api'
 
