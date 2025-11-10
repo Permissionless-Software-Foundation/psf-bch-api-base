@@ -8,6 +8,8 @@
 // import EventRouter from './event/index.js'
 // import ReqRouter from './req/index.js'
 import BlockchainRouter from './full-node/blockchain/index.js'
+import ControlRouter from './full-node/control/index.js'
+import DSProofRouter from './full-node/dsproof/index.js'
 import config from '../../config/index.js'
 
 class RESTControllers {
@@ -49,6 +51,12 @@ class RESTControllers {
 
     const blockchainRouter = new BlockchainRouter(dependencies)
     blockchainRouter.attach(app)
+
+    const controlRouter = new ControlRouter(dependencies)
+    controlRouter.attach(app)
+
+    const dsproofRouter = new DSProofRouter(dependencies)
+    dsproofRouter.attach(app)
   }
 }
 
