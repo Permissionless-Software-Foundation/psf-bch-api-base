@@ -6,6 +6,7 @@
 
 // Load individual adapter libraries.
 // import NostrRelayAdapter from './nostr-relay.js'
+import FullNodeRPCAdapter from './full-node-rpc.js'
 import config from '../config/index.js'
 
 class Adapters {
@@ -30,6 +31,8 @@ class Adapters {
     // Maintain backward compatibility: expose first relay as nostrRelay
     // This allows existing code to work during transition
     // this.nostrRelay = this.nostrRelays[0]
+
+    this.fullNode = new FullNodeRPCAdapter({ config: this.config })
   }
 
   async start () {
