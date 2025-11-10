@@ -7,6 +7,8 @@ import sinon from 'sinon'
 
 import RESTControllers from '../../../src/controllers/rest-api/index.js'
 import BlockchainRouter from '../../../src/controllers/rest-api/full-node/blockchain/index.js'
+import ControlRouter from '../../../src/controllers/rest-api/full-node/control/index.js'
+import DSProofRouter from '../../../src/controllers/rest-api/full-node/dsproof/index.js'
 
 describe('#controllers/rest-api/index.js', () => {
   let sandbox
@@ -43,7 +45,13 @@ describe('#controllers/rest-api/index.js', () => {
       }
     }
     mockUseCases = {
-      blockchain: createBlockchainUseCaseStubs()
+      blockchain: createBlockchainUseCaseStubs(),
+      control: {
+        getNetworkInfo: () => {}
+      },
+      dsproof: {
+        getDSProof: () => {}
+      }
     }
   })
 
@@ -68,8 +76,10 @@ describe('#controllers/rest-api/index.js', () => {
   })
 
   describe('#attachRESTControllers()', () => {
-    it('should instantiate blockchain router and attach to app', () => {
-      const attachStub = sandbox.stub(BlockchainRouter.prototype, 'attach')
+    it('should instantiate routers and attach to app', () => {
+      const blockchainAttachStub = sandbox.stub(BlockchainRouter.prototype, 'attach')
+      const controlAttachStub = sandbox.stub(ControlRouter.prototype, 'attach')
+      const dsproofAttachStub = sandbox.stub(DSProofRouter.prototype, 'attach')
       const restControllers = new RESTControllers({
         adapters: mockAdapters,
         useCases: mockUseCases
@@ -78,8 +88,12 @@ describe('#controllers/rest-api/index.js', () => {
 
       restControllers.attachRESTControllers(app)
 
-      assert.isTrue(attachStub.calledOnce)
-      assert.equal(attachStub.getCall(0).args[0], app)
+      assert.isTrue(blockchainAttachStub.calledOnce)
+      assert.equal(blockchainAttachStub.getCall(0).args[0], app)
+      assert.isTrue(controlAttachStub.calledOnce)
+      assert.equal(controlAttachStub.getCall(0).args[0], app)
+      assert.isTrue(dsproofAttachStub.calledOnce)
+      assert.equal(dsproofAttachStub.getCall(0).args[0], app)
     })
   })
 })

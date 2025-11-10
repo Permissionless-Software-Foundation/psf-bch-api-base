@@ -8,6 +8,8 @@
 // import EventRouter from './event/index.js'
 // import ReqRouter from './req/index.js'
 import BlockchainRouter from './full-node/blockchain/index.js'
+import ControlRouter from './full-node/control/index.js'
+import DSProofRouter from './full-node/dsproof/index.js'
 import config from '../../config/index.js'
 
 class RESTControllers {
@@ -26,6 +28,12 @@ class RESTControllers {
       )
     }
 
+    // Allow overriding the API prefix for testing, default to v6.
+    this.apiPrefix = localConfig.apiPrefix || '/v6'
+    if (this.apiPrefix.length > 1 && this.apiPrefix.endsWith('/')) {
+      this.apiPrefix = this.apiPrefix.slice(0, -1)
+    }
+
     // Bind 'this' object to all subfunctions.
     this.attachRESTControllers = this.attachRESTControllers.bind(this)
 
@@ -36,7 +44,8 @@ class RESTControllers {
   attachRESTControllers (app) {
     const dependencies = {
       adapters: this.adapters,
-      useCases: this.useCases
+      useCases: this.useCases,
+      apiPrefix: this.apiPrefix
     }
 
     // Attach the REST API Controllers associated with the /event route
@@ -49,6 +58,12 @@ class RESTControllers {
 
     const blockchainRouter = new BlockchainRouter(dependencies)
     blockchainRouter.attach(app)
+
+    const controlRouter = new ControlRouter(dependencies)
+    controlRouter.attach(app)
+
+    const dsproofRouter = new DSProofRouter(dependencies)
+    dsproofRouter.attach(app)
   }
 }
 
