@@ -28,7 +28,11 @@ class ControlRouter {
 
     this.controlController = new ControlRESTController(dependencies)
 
-    this.baseUrl = '/full-node/control'
+    this.apiPrefix = (localConfig.apiPrefix || '').replace(/\/$/, '')
+    this.baseUrl = `${this.apiPrefix}/full-node/control`
+    if (!this.baseUrl.startsWith('/')) {
+      this.baseUrl = `/${this.baseUrl}`
+    }
     this.router = express.Router()
   }
 

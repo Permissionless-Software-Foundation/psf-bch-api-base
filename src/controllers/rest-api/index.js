@@ -28,6 +28,12 @@ class RESTControllers {
       )
     }
 
+    // Allow overriding the API prefix for testing, default to v6.
+    this.apiPrefix = localConfig.apiPrefix || '/v6'
+    if (this.apiPrefix.length > 1 && this.apiPrefix.endsWith('/')) {
+      this.apiPrefix = this.apiPrefix.slice(0, -1)
+    }
+
     // Bind 'this' object to all subfunctions.
     this.attachRESTControllers = this.attachRESTControllers.bind(this)
 
@@ -38,7 +44,8 @@ class RESTControllers {
   attachRESTControllers (app) {
     const dependencies = {
       adapters: this.adapters,
-      useCases: this.useCases
+      useCases: this.useCases,
+      apiPrefix: this.apiPrefix
     }
 
     // Attach the REST API Controllers associated with the /event route

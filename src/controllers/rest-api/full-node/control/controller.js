@@ -28,7 +28,7 @@ class ControlRESTController {
   }
 
   /**
-   * @api {get} /full-node/control/ Service status
+   * @api {get} /v6/full-node/control/ Service status
    * @apiName ControlRoot
    * @apiGroup Control
    *
@@ -41,7 +41,7 @@ class ControlRESTController {
   }
 
   /**
-   * @api {get} /full-node/control/getNetworkInfo Get Network Info
+   * @api {get} /v6/full-node/control/getNetworkInfo Get Network Info
    * @apiName GetNetworkInfo
    * @apiGroup Control
    * @apiDescription RPC call that gets basic full node information.

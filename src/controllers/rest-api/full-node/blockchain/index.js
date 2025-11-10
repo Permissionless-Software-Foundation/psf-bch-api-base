@@ -28,7 +28,11 @@ class BlockchainRouter {
 
     this.blockchainController = new BlockchainRESTController(dependencies)
 
-    this.baseUrl = '/full-node/blockchain'
+    this.apiPrefix = (localConfig.apiPrefix || '').replace(/\/$/, '')
+    this.baseUrl = `${this.apiPrefix}/full-node/blockchain`
+    if (!this.baseUrl.startsWith('/')) {
+      this.baseUrl = `/${this.baseUrl}`
+    }
     this.router = express.Router()
   }
 

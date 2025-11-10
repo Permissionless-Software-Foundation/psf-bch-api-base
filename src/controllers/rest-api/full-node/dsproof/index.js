@@ -28,7 +28,11 @@ class DSProofRouter {
 
     this.dsproofController = new DSProofRESTController(dependencies)
 
-    this.baseUrl = '/full-node/dsproof'
+    this.apiPrefix = (localConfig.apiPrefix || '').replace(/\/$/, '')
+    this.baseUrl = `${this.apiPrefix}/full-node/dsproof`
+    if (!this.baseUrl.startsWith('/')) {
+      this.baseUrl = `/${this.baseUrl}`
+    }
     this.router = express.Router()
   }
 

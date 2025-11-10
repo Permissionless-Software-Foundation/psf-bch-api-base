@@ -48,7 +48,7 @@ class BlockchainRESTController {
   }
 
   /**
-   * @api {get} /full-node/blockchain/ Service status
+   * @api {get} /v6/full-node/blockchain/ Service status
    * @apiName BlockchainRoot
    * @apiGroup Blockchain
    *
@@ -61,13 +61,13 @@ class BlockchainRESTController {
   }
 
   /**
-   * @api {get} /full-node/blockchain/getBestBlockHash Get best block hash
+   * @api {get} /v6/full-node/blockchain/getBestBlockHash Get best block hash
    * @apiName GetBestBlockHash
    * @apiGroup Blockchain
    * @apiDescription Returns the hash of the best (tip) block in the longest block chain.
    *
    * @apiExample Example usage:
-   * curl -X GET "https://api.fullstack.cash/v5/blockchain/getBestBlockHash" -H "accept: application/json"
+   * curl -X GET "https://api.fullstack.cash/v6/full-node/blockchain/getBestBlockHash" -H "accept: application/json"
    *
    * @apiSuccess {String} bestBlockHash Hash of the best block
    */
@@ -81,7 +81,7 @@ class BlockchainRESTController {
   }
 
   /**
-   * @api {get} /full-node/blockchain/getBlockchainInfo Get blockchain info
+   * @api {get} /v6/full-node/blockchain/getBlockchainInfo Get blockchain info
    * @apiName GetBlockchainInfo
    * @apiGroup Blockchain
    * @apiDescription Returns various state info regarding blockchain processing.
@@ -96,7 +96,7 @@ class BlockchainRESTController {
   }
 
   /**
-   * @api {get} /full-node/blockchain/getBlockCount Get block count
+   * @api {get} /v6/full-node/blockchain/getBlockCount Get block count
    * @apiName GetBlockCount
    * @apiGroup Blockchain
    * @apiDescription Returns the number of blocks in the longest blockchain.
@@ -111,7 +111,7 @@ class BlockchainRESTController {
   }
 
   /**
-   * @api {get} /full-node/blockchain/getBlockHeader/:hash Get single block header
+   * @api {get} /v6/full-node/blockchain/getBlockHeader/:hash Get single block header
    * @apiName GetSingleBlockHeader
    * @apiGroup Blockchain
    * @apiDescription Returns serialized block header data.
@@ -136,7 +136,7 @@ class BlockchainRESTController {
   }
 
   /**
-   * @api {post} /full-node/blockchain/getBlockHeader Get multiple block headers
+   * @api {post} /v6/full-node/blockchain/getBlockHeader Get multiple block headers
    * @apiName GetBulkBlockHeader
    * @apiGroup Blockchain
    * @apiDescription Returns serialized block header data for multiple hashes.
@@ -173,7 +173,7 @@ class BlockchainRESTController {
   }
 
   /**
-   * @api {get} /full-node/blockchain/getChainTips Get chain tips
+   * @api {get} /v6/full-node/blockchain/getChainTips Get chain tips
    * @apiName GetChainTips
    * @apiGroup Blockchain
    * @apiDescription Returns information about known tips in the block tree.
@@ -188,7 +188,7 @@ class BlockchainRESTController {
   }
 
   /**
-   * @api {get} /full-node/blockchain/getDifficulty Get difficulty
+   * @api {get} /v6/full-node/blockchain/getDifficulty Get difficulty
    * @apiName GetDifficulty
    * @apiGroup Blockchain
    * @apiDescription Returns the current difficulty value.
@@ -203,7 +203,7 @@ class BlockchainRESTController {
   }
 
   /**
-   * @api {get} /full-node/blockchain/getMempoolEntry/:txid Get single mempool entry
+   * @api {get} /v6/full-node/blockchain/getMempoolEntry/:txid Get single mempool entry
    * @apiName GetMempoolEntry
    * @apiGroup Blockchain
    * @apiDescription Returns mempool data for a transaction.
@@ -223,7 +223,7 @@ class BlockchainRESTController {
   }
 
   /**
-   * @api {post} /full-node/blockchain/getMempoolEntry Get bulk mempool entry
+   * @api {post} /v6/full-node/blockchain/getMempoolEntry Get bulk mempool entry
    * @apiName GetMempoolEntryBulk
    * @apiGroup Blockchain
    * @apiDescription Returns mempool data for multiple transactions.
@@ -256,7 +256,7 @@ class BlockchainRESTController {
   }
 
   /**
-   * @api {get} /full-node/blockchain/getMempoolAncestors/:txid Get mempool ancestors
+   * @api {get} /v6/full-node/blockchain/getMempoolAncestors/:txid Get mempool ancestors
    * @apiName GetMempoolAncestors
    * @apiGroup Blockchain
    * @apiDescription Returns mempool ancestor data for a transaction.
@@ -281,7 +281,7 @@ class BlockchainRESTController {
   }
 
   /**
-   * @api {get} /full-node/blockchain/getMempoolInfo Get mempool info
+   * @api {get} /v6/full-node/blockchain/getMempoolInfo Get mempool info
    * @apiName GetMempoolInfo
    * @apiGroup Blockchain
    * @apiDescription Returns details on the state of the mempool.
@@ -296,7 +296,7 @@ class BlockchainRESTController {
   }
 
   /**
-   * @api {get} /full-node/blockchain/getRawMempool Get raw mempool
+   * @api {get} /v6/full-node/blockchain/getRawMempool Get raw mempool
    * @apiName GetRawMempool
    * @apiGroup Blockchain
    * @apiDescription Returns all transaction ids in the mempool.
@@ -314,7 +314,7 @@ class BlockchainRESTController {
   }
 
   /**
-   * @api {get} /full-node/blockchain/getTxOut/:txid/:n Get transaction output
+   * @api {get} /v6/full-node/blockchain/getTxOut/:txid/:n Get transaction output
    * @apiName GetTxOut
    * @apiGroup Blockchain
    * @apiDescription Returns details about an unspent transaction output.
@@ -347,7 +347,7 @@ class BlockchainRESTController {
   }
 
   /**
-   * @api {post} /full-node/blockchain/getTxOut Validate a UTXO
+   * @api {post} /v6/full-node/blockchain/getTxOut Validate a UTXO
    * @apiName GetTxOutPost
    * @apiGroup Blockchain
    * @apiDescription Returns details about an unspent transaction output.
@@ -380,7 +380,7 @@ class BlockchainRESTController {
   }
 
   /**
-   * @api {get} /full-node/blockchain/getTxOutProof/:txid Get TxOut proof
+   * @api {get} /v6/full-node/blockchain/getTxOutProof/:txid Get TxOut proof
    * @apiName GetTxOutProofSingle
    * @apiGroup Blockchain
    * @apiDescription Returns a hex-encoded proof that the transaction was included in a block.
@@ -400,7 +400,7 @@ class BlockchainRESTController {
   }
 
   /**
-   * @api {post} /full-node/blockchain/getTxOutProof Get TxOut proofs
+   * @api {post} /v6/full-node/blockchain/getTxOutProof Get TxOut proofs
    * @apiName GetTxOutProofBulk
    * @apiGroup Blockchain
    * @apiDescription Returns hex-encoded proofs for transactions.
@@ -435,7 +435,7 @@ class BlockchainRESTController {
   }
 
   /**
-   * @api {get} /full-node/blockchain/verifyTxOutProof/:proof Verify TxOut proof
+   * @api {get} /v6/full-node/blockchain/verifyTxOutProof/:proof Verify TxOut proof
    * @apiName VerifyTxOutProofSingle
    * @apiGroup Blockchain
    * @apiDescription Verifies a hex-encoded proof was included in a block.
@@ -455,7 +455,7 @@ class BlockchainRESTController {
   }
 
   /**
-   * @api {post} /full-node/blockchain/verifyTxOutProof Verify TxOut proofs
+   * @api {post} /v6/full-node/blockchain/verifyTxOutProof Verify TxOut proofs
    * @apiName VerifyTxOutProofBulk
    * @apiGroup Blockchain
    * @apiDescription Verifies hex-encoded proofs were included in blocks.
@@ -490,7 +490,7 @@ class BlockchainRESTController {
   }
 
   /**
-   * @api {post} /full-node/blockchain/getBlock Get block details
+   * @api {post} /v6/full-node/blockchain/getBlock Get block details
    * @apiName GetBlock
    * @apiGroup Blockchain
    * @apiDescription Returns block details for a hash.
@@ -519,7 +519,7 @@ class BlockchainRESTController {
   }
 
   /**
-   * @api {get} /full-node/blockchain/getBlockHash/:height Get block hash
+   * @api {get} /v6/full-node/blockchain/getBlockHash/:height Get block hash
    * @apiName GetBlockHash
    * @apiGroup Blockchain
    * @apiDescription Returns the hash of a block by height.

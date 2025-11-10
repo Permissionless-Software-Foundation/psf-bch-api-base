@@ -28,7 +28,7 @@ class DSProofRESTController {
   }
 
   /**
-   * @api {get} /full-node/dsproof/ Service status
+   * @api {get} /v6/full-node/dsproof/ Service status
    * @apiName DSProofRoot
    * @apiGroup DSProof
    *
@@ -41,7 +41,7 @@ class DSProofRESTController {
   }
 
   /**
-   * @api {get} /full-node/dsproof/getDSProof/:txid Get Double-Spend Proof
+   * @api {get} /v6/full-node/dsproof/getDSProof/:txid Get Double-Spend Proof
    * @apiName GetDSProof
    * @apiGroup DSProof
    * @apiDescription Get information for a double-spend proof.
