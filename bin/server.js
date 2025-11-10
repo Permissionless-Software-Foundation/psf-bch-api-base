@@ -7,6 +7,7 @@
 import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
+import { paymentMiddleware as x402PaymentMiddleware } from 'x402-bch-express'
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 
@@ -14,6 +15,7 @@ import { dirname, join } from 'path'
 import config from '../src/config/index.js'
 import Controllers from '../src/controllers/index.js'
 import wlogger from '../src/adapters/wlogger.js'
+import { buildX402Routes, getX402Settings } from '../src/config/x402.js'
 
 // Load environment variables
 dotenv.config()
@@ -57,6 +59,8 @@ class Server {
       // Create an Express instance.
       const app = express()
 
+      const x402Settings = getX402Settings()
+
       // MIDDLEWARE START
       app.use(express.json())
       app.use(express.urlencoded({ extended: true }))
@@ -67,6 +71,24 @@ class Server {
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
         allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
       }))
+
+      if (x402Settings.enabled) {
+        const routes = buildX402Routes(this.config.apiPrefix)
+        const facilitatorOptions = x402Settings.facilitatorUrl
+          ? { url: x402Settings.facilitatorUrl }
+          : undefined
+
+        wlogger.info(`x402 middleware enabled; enforcing ${x402Settings.priceSat} satoshis per request`)
+        app.use(
+          x402PaymentMiddleware(
+            x402Settings.serverAddress,
+            routes,
+            facilitatorOptions
+          )
+        )
+      } else {
+        wlogger.info('x402 middleware disabled via configuration')
+      }
 
       // Endpoint logging middleware
       app.use((req, res, next) => {

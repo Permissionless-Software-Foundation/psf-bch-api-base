@@ -18,6 +18,7 @@ class Controllers {
     this.useCases = new UseCases({ adapters: this.adapters })
     this.config = config
     this.timerController = new TimerController({ adapters: this.adapters, useCases: this.useCases })
+    this.apiPrefix = this.config.apiPrefix || '/v6'
 
     // Bind 'this' object to all subfunctions
     this.initAdapters = this.initAdapters.bind(this)
@@ -45,7 +46,8 @@ class Controllers {
   attachRESTControllers (app) {
     const restControllers = new RESTControllers({
       adapters: this.adapters,
-      useCases: this.useCases
+      useCases: this.useCases,
+      apiPrefix: this.apiPrefix
     })
 
     // Attach the REST API Controllers to the Express app.
