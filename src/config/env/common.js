@@ -16,6 +16,7 @@ const pkgInfo = JSON.parse(readFileSync(`${__dirname.toString()}/../../../packag
 
 const version = pkgInfo.version
 
+// This function is used to convert the string input of an environment variable to a boolean value.
 const normalizeBoolean = (value, defaultValue) => {
   if (value === undefined || value === null || value === '') return defaultValue
 
@@ -25,6 +26,8 @@ const normalizeBoolean = (value, defaultValue) => {
   return defaultValue
 }
 
+// By default, the price per API call is 2000 satoshis.
+// But the user can override this value by setting the X402_PRICE_SAT environment variable.
 const parsedPriceSat = Number(process.env.X402_PRICE_SAT)
 const priceSat = Number.isFinite(parsedPriceSat) && parsedPriceSat > 0 ? parsedPriceSat : 2000
 
@@ -47,30 +50,6 @@ export default {
 
   // Logging level
   logLevel: process.env.LOG_LEVEL || 'info',
-
-  // Nostr relay configuration (array of relay URLs)
-  nostrRelayUrls: (() => {
-    // Support NOSTR_RELAY_URLS (plural) as comma-separated string or JSON array
-    if (process.env.NOSTR_RELAY_URLS) {
-      try {
-        // Try parsing as JSON array first
-        const parsed = JSON.parse(process.env.NOSTR_RELAY_URLS)
-        if (Array.isArray(parsed)) {
-          return parsed.filter(url => url && typeof url === 'string')
-        }
-      } catch (e) {
-        // Not JSON, treat as comma-separated string
-        return process.env.NOSTR_RELAY_URLS.split(',').map(url => url.trim()).filter(url => url.length > 0)
-      }
-    }
-    // Backward compatibility: support NOSTR_RELAY_URL (singular)
-    if (process.env.NOSTR_RELAY_URL) {
-      return [process.env.NOSTR_RELAY_URL]
-    }
-
-    // Default
-    return ['wss://nostr-relay.psfoundation.info', 'wss://relay.damus.io']
-  })(),
 
   // Full node RPC configuration
   fullNode: {
