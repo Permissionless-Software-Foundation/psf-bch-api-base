@@ -7,6 +7,7 @@
 // Local libraries
 // import EventRouter from './event/index.js'
 // import ReqRouter from './req/index.js'
+import BlockchainRouter from './full-node/blockchain/index.js'
 import config from '../../config/index.js'
 
 class RESTControllers {
@@ -33,10 +34,10 @@ class RESTControllers {
   }
 
   attachRESTControllers (app) {
-    // const dependencies = {
-    //   adapters: this.adapters,
-    //   useCases: this.useCases
-    // }
+    const dependencies = {
+      adapters: this.adapters,
+      useCases: this.useCases
+    }
 
     // Attach the REST API Controllers associated with the /event route
     // const eventRouter = new EventRouter(dependencies)
@@ -45,6 +46,9 @@ class RESTControllers {
     // Attach the REST API Controllers associated with the /req route
     // const reqRouter = new ReqRouter(dependencies)
     // reqRouter.attach(app)
+
+    const blockchainRouter = new BlockchainRouter(dependencies)
+    blockchainRouter.attach(app)
   }
 }
 

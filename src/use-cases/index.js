@@ -5,9 +5,7 @@
 */
 
 // Local libraries
-// import PublishEventUseCase from './publish-event.js'
-// import QueryEventsUseCase from './query-events.js'
-// import ManageSubscriptionUseCase from './manage-subscription.js'
+import BlockchainUseCases from './full-node-blockchain-use-cases.js'
 
 class UseCases {
   constructor (localConfig = {}) {
@@ -18,9 +16,7 @@ class UseCases {
       )
     }
 
-    // this.publishEvent = new PublishEventUseCase({ adapters: this.adapters })
-    // this.queryEvents = new QueryEventsUseCase({ adapters: this.adapters })
-    // this.manageSubscription = new ManageSubscriptionUseCase({ adapters: this.adapters })
+    this.blockchain = new BlockchainUseCases({ adapters: this.adapters })
   }
 
   // Run any startup Use Cases at the start of the app.

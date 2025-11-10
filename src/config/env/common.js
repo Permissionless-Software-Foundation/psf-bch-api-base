@@ -3,10 +3,13 @@
   environments.
 */
 
+import dotenv from 'dotenv'
+
 // Hack to get __dirname back.
 // https://blog.logrocket.com/alternatives-dirname-node-js-es-modules/
 import * as url from 'url'
 import { readFileSync } from 'fs'
+dotenv.config()
 
 const __dirname = url.fileURLToPath(new URL('.', import.meta.url))
 const pkgInfo = JSON.parse(readFileSync(`${__dirname.toString()}/../../../package.json`))
@@ -46,6 +49,15 @@ export default {
     // Default
     return ['wss://nostr-relay.psfoundation.info', 'wss://relay.damus.io']
   })(),
+
+  // Full node RPC configuration
+  fullNode: {
+    rpcBaseUrl: process.env.RPC_BASEURL || 'http://127.0.0.1:8332',
+    rpcUsername: process.env.RPC_USERNAME || '',
+    rpcPassword: process.env.RPC_PASSWORD || '',
+    rpcTimeoutMs: Number(process.env.RPC_TIMEOUT_MS || 15000),
+    rpcRequestIdPrefix: process.env.RPC_REQUEST_ID_PREFIX || 'psf-bch-api'
+  },
 
   // Version
   version
