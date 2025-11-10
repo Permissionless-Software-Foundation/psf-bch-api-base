@@ -8,7 +8,7 @@
 // import PublishEventUseCase from './publish-event.js'
 // import QueryEventsUseCase from './query-events.js'
 // import ManageSubscriptionUseCase from './manage-subscription.js'
-import BlockchainUseCases from './blockchain/index.js'
+import BlockchainUseCases from './full-node-blockchain-use-cases.js'
 
 class UseCases {
   constructor (localConfig = {}) {

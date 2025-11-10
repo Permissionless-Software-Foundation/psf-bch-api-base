@@ -2,7 +2,7 @@
   Use cases for interacting with the BCH full node blockchain RPC interface.
 */
 
-import wlogger from '../../adapters/wlogger.js'
+import wlogger from '../adapters/wlogger.js'
 
 class BlockchainUseCases {
   constructor (localConfig = {}) {
