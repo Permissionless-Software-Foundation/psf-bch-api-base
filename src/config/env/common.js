@@ -60,6 +60,12 @@ export default {
     rpcRequestIdPrefix: process.env.RPC_REQUEST_ID_PREFIX || 'psf-bch-api'
   },
 
+  // Fulcrum API configuration
+  fulcrumApi: {
+    baseUrl: process.env.FULCRUM_API || '',
+    timeoutMs: Number(process.env.FULCRUM_TIMEOUT_MS || 15000)
+  },
+
   x402: x402Defaults,
 
   // Version

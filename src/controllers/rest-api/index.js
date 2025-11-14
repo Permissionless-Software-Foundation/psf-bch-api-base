@@ -10,6 +10,7 @@
 import BlockchainRouter from './full-node/blockchain/router.js'
 import ControlRouter from './full-node/control/router.js'
 import DSProofRouter from './full-node/dsproof/router.js'
+import FulcrumRouter from './full-node/fulcrum/router.js'
 import MiningRouter from './full-node/mining/router.js'
 import RawTransactionsRouter from './full-node/rawtransactions/router.js'
 import config from '../../config/index.js'
@@ -66,6 +67,9 @@ class RESTControllers {
 
     const dsproofRouter = new DSProofRouter(dependencies)
     dsproofRouter.attach(app)
+
+    const fulcrumRouter = new FulcrumRouter(dependencies)
+    fulcrumRouter.attach(app)
 
     const miningRouter = new MiningRouter(dependencies)
     miningRouter.attach(app)

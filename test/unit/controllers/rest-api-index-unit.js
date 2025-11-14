@@ -9,6 +9,7 @@ import RESTControllers from '../../../src/controllers/rest-api/index.js'
 import BlockchainRouter from '../../../src/controllers/rest-api/full-node/blockchain/router.js'
 import ControlRouter from '../../../src/controllers/rest-api/full-node/control/router.js'
 import DSProofRouter from '../../../src/controllers/rest-api/full-node/dsproof/router.js'
+import FulcrumRouter from '../../../src/controllers/rest-api/full-node/fulcrum/router.js'
 import MiningRouter from '../../../src/controllers/rest-api/full-node/mining/router.js'
 import RawTransactionsRouter from '../../../src/controllers/rest-api/full-node/rawtransactions/router.js'
 
@@ -54,6 +55,21 @@ describe('#controllers/rest-api/index.js', () => {
       dsproof: {
         getDSProof: () => {}
       },
+      fulcrum: {
+        getBalance: () => {},
+        getBalances: () => {},
+        getUtxos: () => {},
+        getUtxosBulk: () => {},
+        getTransactionDetails: () => {},
+        getTransactionDetailsBulk: () => {},
+        broadcastTransaction: () => {},
+        getBlockHeaders: () => {},
+        getBlockHeadersBulk: () => {},
+        getTransactions: () => {},
+        getTransactionsBulk: () => {},
+        getMempool: () => {},
+        getMempoolBulk: () => {}
+      },
       mining: {
         getMiningInfo: () => {},
         getNetworkHashPS: () => {}
@@ -97,6 +113,7 @@ describe('#controllers/rest-api/index.js', () => {
       const blockchainAttachStub = sandbox.stub(BlockchainRouter.prototype, 'attach')
       const controlAttachStub = sandbox.stub(ControlRouter.prototype, 'attach')
       const dsproofAttachStub = sandbox.stub(DSProofRouter.prototype, 'attach')
+      const fulcrumAttachStub = sandbox.stub(FulcrumRouter.prototype, 'attach')
       const miningAttachStub = sandbox.stub(MiningRouter.prototype, 'attach')
       const rawtransactionsAttachStub = sandbox.stub(RawTransactionsRouter.prototype, 'attach')
       const restControllers = new RESTControllers({
@@ -113,6 +130,8 @@ describe('#controllers/rest-api/index.js', () => {
       assert.equal(controlAttachStub.getCall(0).args[0], app)
       assert.isTrue(dsproofAttachStub.calledOnce)
       assert.equal(dsproofAttachStub.getCall(0).args[0], app)
+      assert.isTrue(fulcrumAttachStub.calledOnce)
+      assert.equal(fulcrumAttachStub.getCall(0).args[0], app)
       assert.isTrue(miningAttachStub.calledOnce)
       assert.equal(miningAttachStub.getCall(0).args[0], app)
       assert.isTrue(rawtransactionsAttachStub.calledOnce)
