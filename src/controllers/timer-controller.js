@@ -23,7 +23,7 @@ class TimerController {
     }
 
     // Constants
-    this.SHUTDOWN_INTERVAL_MS = 10 * 60 * 1000 // 10 minutes in milliseconds
+    this.SHUTDOWN_INTERVAL_MS = 10 * 60 * 60 * 1000 // 10 hours in milliseconds
     this.LIVENESS_CHECK_INTERVAL_MS = 1 * 60 * 1000 // 1 minute in milliseconds
 
     // Handlers
