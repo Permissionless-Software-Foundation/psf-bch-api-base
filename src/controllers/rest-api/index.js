@@ -11,6 +11,7 @@ import BlockchainRouter from './full-node/blockchain/index.js'
 import ControlRouter from './full-node/control/index.js'
 import DSProofRouter from './full-node/dsproof/index.js'
 import MiningRouter from './full-node/mining/index.js'
+import RawTransactionsRouter from './full-node/rawtransactions/index.js'
 import config from '../../config/index.js'
 
 class RESTControllers {
@@ -68,6 +69,9 @@ class RESTControllers {
 
     const miningRouter = new MiningRouter(dependencies)
     miningRouter.attach(app)
+
+    const rawtransactionsRouter = new RawTransactionsRouter(dependencies)
+    rawtransactionsRouter.attach(app)
   }
 }
 
