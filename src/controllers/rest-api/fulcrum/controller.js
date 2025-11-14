@@ -2,7 +2,7 @@
   REST API Controller for the /full-node/fulcrum routes.
 */
 
-import wlogger from '../../../../adapters/wlogger.js'
+import wlogger from '../../../adapters/wlogger.js'
 import BCHJS from '@psf/bch-js'
 
 const bchjs = new BCHJS()

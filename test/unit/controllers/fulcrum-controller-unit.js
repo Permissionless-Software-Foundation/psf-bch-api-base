@@ -5,7 +5,7 @@
 import { assert } from 'chai'
 import sinon from 'sinon'
 
-import FulcrumRESTController from '../../../src/controllers/rest-api/full-node/fulcrum/controller.js'
+import FulcrumRESTController from '../../../src/controllers/rest-api/fulcrum/controller.js'
 import {
   createMockRequest,
   createMockResponse
