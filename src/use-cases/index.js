@@ -8,6 +8,7 @@
 import BlockchainUseCases from './full-node-blockchain-use-cases.js'
 import ControlUseCases from './full-node-control-use-cases.js'
 import DSProofUseCases from './full-node-dsproof-use-cases.js'
+import MiningUseCases from './full-node-mining-use-cases.js'
 
 class UseCases {
   constructor (localConfig = {}) {
@@ -21,6 +22,7 @@ class UseCases {
     this.blockchain = new BlockchainUseCases({ adapters: this.adapters })
     this.control = new ControlUseCases({ adapters: this.adapters })
     this.dsproof = new DSProofUseCases({ adapters: this.adapters })
+    this.mining = new MiningUseCases({ adapters: this.adapters })
   }
 
   // Run any startup Use Cases at the start of the app.

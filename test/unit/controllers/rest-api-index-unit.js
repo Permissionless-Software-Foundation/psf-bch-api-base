@@ -9,6 +9,7 @@ import RESTControllers from '../../../src/controllers/rest-api/index.js'
 import BlockchainRouter from '../../../src/controllers/rest-api/full-node/blockchain/index.js'
 import ControlRouter from '../../../src/controllers/rest-api/full-node/control/index.js'
 import DSProofRouter from '../../../src/controllers/rest-api/full-node/dsproof/index.js'
+import MiningRouter from '../../../src/controllers/rest-api/full-node/mining/index.js'
 
 describe('#controllers/rest-api/index.js', () => {
   let sandbox
@@ -51,6 +52,10 @@ describe('#controllers/rest-api/index.js', () => {
       },
       dsproof: {
         getDSProof: () => {}
+      },
+      mining: {
+        getMiningInfo: () => {},
+        getNetworkHashPS: () => {}
       }
     }
   })
@@ -80,6 +85,7 @@ describe('#controllers/rest-api/index.js', () => {
       const blockchainAttachStub = sandbox.stub(BlockchainRouter.prototype, 'attach')
       const controlAttachStub = sandbox.stub(ControlRouter.prototype, 'attach')
       const dsproofAttachStub = sandbox.stub(DSProofRouter.prototype, 'attach')
+      const miningAttachStub = sandbox.stub(MiningRouter.prototype, 'attach')
       const restControllers = new RESTControllers({
         adapters: mockAdapters,
         useCases: mockUseCases
@@ -94,6 +100,8 @@ describe('#controllers/rest-api/index.js', () => {
       assert.equal(controlAttachStub.getCall(0).args[0], app)
       assert.isTrue(dsproofAttachStub.calledOnce)
       assert.equal(dsproofAttachStub.getCall(0).args[0], app)
+      assert.isTrue(miningAttachStub.calledOnce)
+      assert.equal(miningAttachStub.getCall(0).args[0], app)
     })
   })
 })
