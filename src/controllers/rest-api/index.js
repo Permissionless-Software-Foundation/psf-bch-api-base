@@ -7,11 +7,11 @@
 // Local libraries
 // import EventRouter from './event/index.js'
 // import ReqRouter from './req/index.js'
-import BlockchainRouter from './full-node/blockchain/index.js'
-import ControlRouter from './full-node/control/index.js'
-import DSProofRouter from './full-node/dsproof/index.js'
-import MiningRouter from './full-node/mining/index.js'
-import RawTransactionsRouter from './full-node/rawtransactions/index.js'
+import BlockchainRouter from './full-node/blockchain/router.js'
+import ControlRouter from './full-node/control/router.js'
+import DSProofRouter from './full-node/dsproof/router.js'
+import MiningRouter from './full-node/mining/router.js'
+import RawTransactionsRouter from './full-node/rawtransactions/router.js'
 import config from '../../config/index.js'
 
 class RESTControllers {

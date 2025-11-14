@@ -6,11 +6,11 @@ import { assert } from 'chai'
 import sinon from 'sinon'
 
 import RESTControllers from '../../../src/controllers/rest-api/index.js'
-import BlockchainRouter from '../../../src/controllers/rest-api/full-node/blockchain/index.js'
-import ControlRouter from '../../../src/controllers/rest-api/full-node/control/index.js'
-import DSProofRouter from '../../../src/controllers/rest-api/full-node/dsproof/index.js'
-import MiningRouter from '../../../src/controllers/rest-api/full-node/mining/index.js'
-import RawTransactionsRouter from '../../../src/controllers/rest-api/full-node/rawtransactions/index.js'
+import BlockchainRouter from '../../../src/controllers/rest-api/full-node/blockchain/router.js'
+import ControlRouter from '../../../src/controllers/rest-api/full-node/control/router.js'
+import DSProofRouter from '../../../src/controllers/rest-api/full-node/dsproof/router.js'
+import MiningRouter from '../../../src/controllers/rest-api/full-node/mining/router.js'
+import RawTransactionsRouter from '../../../src/controllers/rest-api/full-node/rawtransactions/router.js'
 
 describe('#controllers/rest-api/index.js', () => {
   let sandbox
