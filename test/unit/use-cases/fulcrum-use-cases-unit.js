@@ -6,9 +6,9 @@ import { assert } from 'chai'
 import sinon from 'sinon'
 import BCHJS from '@psf/bch-js'
 
-import FulcrumUseCases from '../../../src/use-cases/full-node-fulcrum-use-cases.js'
+import FulcrumUseCases from '../../../src/use-cases/fulcrum-use-cases.js'
 
-describe('#full-node-fulcrum-use-cases.js', () => {
+describe('#fulcrum-use-cases.js', () => {
   let sandbox
   let mockAdapters
   let uut

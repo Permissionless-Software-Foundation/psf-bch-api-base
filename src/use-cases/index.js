@@ -8,7 +8,7 @@
 import BlockchainUseCases from './full-node-blockchain-use-cases.js'
 import ControlUseCases from './full-node-control-use-cases.js'
 import DSProofUseCases from './full-node-dsproof-use-cases.js'
-import FulcrumUseCases from './full-node-fulcrum-use-cases.js'
+import FulcrumUseCases from './fulcrum-use-cases.js'
 import MiningUseCases from './full-node-mining-use-cases.js'
 import RawTransactionsUseCases from './full-node-rawtransactions-use-cases.js'
 
