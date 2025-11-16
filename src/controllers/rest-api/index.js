@@ -13,6 +13,7 @@ import DSProofRouter from './full-node/dsproof/router.js'
 import FulcrumRouter from './fulcrum/router.js'
 import MiningRouter from './full-node/mining/router.js'
 import RawTransactionsRouter from './full-node/rawtransactions/router.js'
+import SlpRouter from './slp/router.js'
 import config from '../../config/index.js'
 
 class RESTControllers {
@@ -76,6 +77,9 @@ class RESTControllers {
 
     const rawtransactionsRouter = new RawTransactionsRouter(dependencies)
     rawtransactionsRouter.attach(app)
+
+    const slpRouter = new SlpRouter(dependencies)
+    slpRouter.attach(app)
   }
 }
 

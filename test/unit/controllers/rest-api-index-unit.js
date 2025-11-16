@@ -12,6 +12,7 @@ import DSProofRouter from '../../../src/controllers/rest-api/full-node/dsproof/r
 import MiningRouter from '../../../src/controllers/rest-api/full-node/mining/router.js'
 import RawTransactionsRouter from '../../../src/controllers/rest-api/full-node/rawtransactions/router.js'
 import FulcrumRouter from '../../../src/controllers/rest-api/fulcrum/router.js'
+import SlpRouter from '../../../src/controllers/rest-api/slp/router.js'
 
 describe('#controllers/rest-api/index.js', () => {
   let sandbox
@@ -84,6 +85,17 @@ describe('#controllers/rest-api/index.js', () => {
         getRawTransactions: () => {},
         sendRawTransaction: () => {},
         sendRawTransactions: () => {}
+      },
+      slp: {
+        getStatus: () => {},
+        getAddress: () => {},
+        getTxid: () => {},
+        getTokenStats: () => {},
+        getTokenData: () => {},
+        getTokenData2: () => {},
+        getMutableCid: () => {},
+        decodeOpReturn: () => {},
+        getCIDData: () => {}
       }
     }
   })
@@ -116,6 +128,7 @@ describe('#controllers/rest-api/index.js', () => {
       const fulcrumAttachStub = sandbox.stub(FulcrumRouter.prototype, 'attach')
       const miningAttachStub = sandbox.stub(MiningRouter.prototype, 'attach')
       const rawtransactionsAttachStub = sandbox.stub(RawTransactionsRouter.prototype, 'attach')
+      const slpAttachStub = sandbox.stub(SlpRouter.prototype, 'attach')
       const restControllers = new RESTControllers({
         adapters: mockAdapters,
         useCases: mockUseCases
@@ -136,6 +149,8 @@ describe('#controllers/rest-api/index.js', () => {
       assert.equal(miningAttachStub.getCall(0).args[0], app)
       assert.isTrue(rawtransactionsAttachStub.calledOnce)
       assert.equal(rawtransactionsAttachStub.getCall(0).args[0], app)
+      assert.isTrue(slpAttachStub.calledOnce)
+      assert.equal(slpAttachStub.getCall(0).args[0], app)
     })
   })
 })

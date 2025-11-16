@@ -11,6 +11,7 @@ import DSProofUseCases from './full-node-dsproof-use-cases.js'
 import FulcrumUseCases from './fulcrum-use-cases.js'
 import MiningUseCases from './full-node-mining-use-cases.js'
 import RawTransactionsUseCases from './full-node-rawtransactions-use-cases.js'
+import SlpUseCases from './slp-use-cases.js'
 
 class UseCases {
   constructor (localConfig = {}) {
@@ -27,6 +28,7 @@ class UseCases {
     this.fulcrum = new FulcrumUseCases({ adapters: this.adapters })
     this.mining = new MiningUseCases({ adapters: this.adapters })
     this.rawtransactions = new RawTransactionsUseCases({ adapters: this.adapters })
+    this.slp = new SlpUseCases({ adapters: this.adapters })
   }
 
   // Run any startup Use Cases at the start of the app.

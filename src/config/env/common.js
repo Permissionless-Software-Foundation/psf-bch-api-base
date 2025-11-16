@@ -66,6 +66,18 @@ export default {
     timeoutMs: Number(process.env.FULCRUM_TIMEOUT_MS || 15000)
   },
 
+  // SLP Indexer API configuration
+  slpIndexerApi: {
+    baseUrl: process.env.SLP_INDEXER_API || '',
+    timeoutMs: Number(process.env.SLP_INDEXER_TIMEOUT_MS || 15000)
+  },
+
+  // REST API URL for wallet operations
+  restURL: process.env.REST_URL || process.env.LOCAL_RESTURL || 'http://127.0.0.1:3000/v5/',
+
+  // IPFS Gateway URL
+  ipfsGateway: process.env.IPFS_GATEWAY || 'p2wdb-gateway-678.fullstack.cash',
+
   x402: x402Defaults,
 
   // Version
