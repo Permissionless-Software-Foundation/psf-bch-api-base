@@ -146,18 +146,6 @@ class SlpUseCases {
     }
   }
 
-  async getTokenData2 ({ tokenId, updateCache }) {
-    try {
-      await this._ensureInitialized()
-
-      const tokenData = await this.slpTokenMedia.getIcon({ tokenId, updateCache })
-      return tokenData
-    } catch (err) {
-      wlogger.error('Error in SlpUseCases.getTokenData2()', err)
-      throw err
-    }
-  }
-
   async getMutableCid ({ tokenStats }) {
     // Validate input - this should throw, not be caught
     if (!tokenStats || !tokenStats.documentHash) {

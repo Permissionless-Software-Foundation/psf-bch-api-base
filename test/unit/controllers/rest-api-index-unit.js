@@ -92,7 +92,6 @@ describe('#controllers/rest-api/index.js', () => {
         getTxid: () => {},
         getTokenStats: () => {},
         getTokenData: () => {},
-        getTokenData2: () => {},
         getMutableCid: () => {},
         decodeOpReturn: () => {},
         getCIDData: () => {}

@@ -195,21 +195,6 @@ describe('#slp-use-cases.js', () => {
     })
   })
 
-  describe('#getTokenData2()', () => {
-    it('should call slpTokenMedia getIcon method', async () => {
-      const tokenId = 'a'.repeat(64)
-      const updateCache = false
-      mockSlpTokenMedia.getIcon.resolves({ tokenIcon: 'test-icon.png' })
-
-      const result = await uut.getTokenData2({ tokenId, updateCache })
-
-      assert.isTrue(
-        mockSlpTokenMedia.getIcon.calledOnceWith({ tokenId, updateCache })
-      )
-      assert.deepEqual(result, { tokenIcon: 'test-icon.png' })
-    })
-  })
-
   describe('#decodeOpReturn()', () => {
     it('should decode OP_RETURN data from transaction', async () => {
       const txid = 'a'.repeat(64)

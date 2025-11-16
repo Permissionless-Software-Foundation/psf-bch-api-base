@@ -47,7 +47,6 @@ class SlpRouter {
     this.router.post('/txid', this.slpController.getTxid)
     this.router.post('/token', this.slpController.getTokenStats)
     this.router.post('/token/data', this.slpController.getTokenData)
-    this.router.post('/token/data2', this.slpController.getTokenData2)
 
     app.use(this.baseUrl, this.router)
   }

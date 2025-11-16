@@ -32,7 +32,6 @@ class SlpRESTController {
     this.getTxid = this.getTxid.bind(this)
     this.getTokenStats = this.getTokenStats.bind(this)
     this.getTokenData = this.getTokenData.bind(this)
-    this.getTokenData2 = this.getTokenData2.bind(this)
     this.handleError = this.handleError.bind(this)
   }
 
@@ -200,32 +199,6 @@ class SlpRESTController {
       const withTxHistory = req.body.withTxHistory === true
 
       const result = await this.slpUseCases.getTokenData({ tokenId, withTxHistory })
-      return res.status(200).json(result)
-    } catch (err) {
-      return this.handleError(err, res)
-    }
-  }
-
-  /**
-   * @api {post} /v6/slp/token/data2 Get expanded token data
-   * @apiName GetTokenData2
-   * @apiGroup SLP
-   * @apiDescription Get expanded data for the token, including icons.
-   */
-  async getTokenData2 (req, res) {
-    try {
-      const tokenId = req.body.tokenId
-
-      if (!tokenId || tokenId === '') {
-        return res.status(400).json({
-          success: false,
-          error: 'tokenId can not be empty'
-        })
-      }
-
-      const updateCache = req.body.updateCache
-
-      const result = await this.slpUseCases.getTokenData2({ tokenId, updateCache })
       return res.status(200).json(result)
     } catch (err) {
       return this.handleError(err, res)

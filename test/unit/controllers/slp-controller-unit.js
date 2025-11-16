@@ -25,8 +25,7 @@ describe('#slp-controller.js', () => {
     getAddress: sandbox.stub().resolves({ balance: 1000 }),
     getTxid: sandbox.stub().resolves({ txid: 'abc' }),
     getTokenStats: sandbox.stub().resolves({ tokenData: {} }),
-    getTokenData: sandbox.stub().resolves({ genesisData: {}, immutableData: '', mutableData: '' }),
-    getTokenData2: sandbox.stub().resolves({ tokenIcon: 'test-icon.png' })
+    getTokenData: sandbox.stub().resolves({ genesisData: {}, immutableData: '', mutableData: '' })
   })
 
   beforeEach(() => {
@@ -308,62 +307,6 @@ describe('#slp-controller.js', () => {
 
       assert.equal(res.statusValue, 404)
       assert.deepEqual(res.jsonData, { error: 'Token data not found' })
-    })
-  })
-
-  describe('#getTokenData2()', () => {
-    it('should return expanded token data on success', async () => {
-      const req = createMockRequest({
-        body: { tokenId: 'a'.repeat(64) }
-      })
-      const res = createMockResponse()
-
-      await uut.getTokenData2(req, res)
-
-      assert.equal(res.statusValue, 200)
-      assert.deepEqual(res.jsonData, { tokenIcon: 'test-icon.png' })
-      assert.isTrue(mockUseCases.slp.getTokenData2.calledOnce)
-    })
-
-    it('should pass updateCache flag', async () => {
-      const req = createMockRequest({
-        body: { tokenId: 'a'.repeat(64), updateCache: true }
-      })
-      const res = createMockResponse()
-
-      await uut.getTokenData2(req, res)
-
-      assert.isTrue(mockUseCases.slp.getTokenData2.calledWith({
-        tokenId: 'a'.repeat(64),
-        updateCache: true
-      }))
-    })
-
-    it('should return error if tokenId is empty', async () => {
-      const req = createMockRequest({
-        body: { tokenId: '' }
-      })
-      const res = createMockResponse()
-
-      await uut.getTokenData2(req, res)
-
-      assert.equal(res.statusValue, 400)
-      assert.property(res.jsonData, 'error')
-    })
-
-    it('should handle errors via handleError', async () => {
-      const error = new Error('Token icon not found')
-      error.status = 404
-      mockUseCases.slp.getTokenData2.rejects(error)
-      const req = createMockRequest({
-        body: { tokenId: 'a'.repeat(64) }
-      })
-      const res = createMockResponse()
-
-      await uut.getTokenData2(req, res)
-
-      assert.equal(res.statusValue, 404)
-      assert.deepEqual(res.jsonData, { error: 'Token icon not found' })
     })
   })
 })
