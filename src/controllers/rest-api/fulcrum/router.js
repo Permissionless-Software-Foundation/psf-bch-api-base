@@ -29,7 +29,7 @@ class FulcrumRouter {
     this.fulcrumController = new FulcrumRESTController(dependencies)
 
     this.apiPrefix = (localConfig.apiPrefix || '').replace(/\/$/, '')
-    this.baseUrl = `${this.apiPrefix}/full-node/fulcrum`
+    this.baseUrl = `${this.apiPrefix}/fulcrum`
     if (!this.baseUrl.startsWith('/')) {
       this.baseUrl = `/${this.baseUrl}`
     }
