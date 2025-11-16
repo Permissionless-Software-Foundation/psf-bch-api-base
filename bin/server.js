@@ -1,5 +1,5 @@
 /*
-  Express server for REST2NOSTR Proxy API.
+  Express server for psf-bch-api REST API.
   The architecture of the code follows the Clean Architecture pattern.
 */
 
@@ -72,6 +72,7 @@ class Server {
         allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
       }))
 
+      // Wrap all endpoints in x402 middleware. This handles payments for the API calls.
       if (x402Settings.enabled) {
         const routes = buildX402Routes(this.config.apiPrefix)
         const facilitatorOptions = x402Settings.facilitatorUrl

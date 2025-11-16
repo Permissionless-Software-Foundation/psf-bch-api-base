@@ -7,6 +7,8 @@
 // Load individual adapter libraries.
 // import NostrRelayAdapter from './nostr-relay.js'
 import FullNodeRPCAdapter from './full-node-rpc.js'
+import FulcrumAPIAdapter from './fulcrum-api.js'
+import SlpIndexerAPIAdapter from './slp-indexer-api.js'
 import config from '../config/index.js'
 
 class Adapters {
@@ -33,6 +35,8 @@ class Adapters {
     // this.nostrRelay = this.nostrRelays[0]
 
     this.fullNode = new FullNodeRPCAdapter({ config: this.config })
+    this.fulcrum = new FulcrumAPIAdapter({ config: this.config })
+    this.slpIndexer = new SlpIndexerAPIAdapter({ config: this.config })
   }
 
   async start () {

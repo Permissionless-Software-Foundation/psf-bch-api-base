@@ -161,8 +161,7 @@ describe('#blockchain-controller.js', () => {
     it('should validate array size and call use case', async () => {
       const hash = 'a'.repeat(64)
       const req = createMockRequest({
-        body: { hashes: [hash], verbose: true },
-        locals: { proLimit: false }
+        body: { hashes: [hash], verbose: true }
       })
       const res = createMockResponse()
       mockUseCases.blockchain.getBlockHeaders.resolves(['result'])
@@ -172,7 +171,7 @@ describe('#blockchain-controller.js', () => {
       assert.equal(res.statusValue, 200)
       assert.deepEqual(res.jsonData, ['result'])
       assert.isTrue(
-        mockAdapters.fullNode.validateArraySize.calledOnceWithExactly(1, { isProUser: false })
+        mockAdapters.fullNode.validateArraySize.calledOnceWithExactly(1)
       )
       assert.isTrue(
         mockUseCases.blockchain.getBlockHeaders.calledOnceWithExactly({

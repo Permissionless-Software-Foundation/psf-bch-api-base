@@ -113,12 +113,8 @@ class FullNodeRPCAdapter {
     }
   }
 
-  validateArraySize (length, options = {}) {
-    const { isProUser = false } = options
-    const freemiumLimit = Number(this.config.fullNode?.freemiumArrayLimit || 20)
-    const proLimit = Number(this.config.fullNode?.proArrayLimit || freemiumLimit)
-
-    const limit = isProUser ? proLimit : freemiumLimit
+  validateArraySize (length) {
+    const limit = 20
     return length <= limit
   }
 

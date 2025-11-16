@@ -155,7 +155,7 @@ class BlockchainRESTController {
         })
       }
 
-      if (!this.adapters.fullNode.validateArraySize(hashes.length, { isProUser: Boolean(req.locals?.proLimit) })) {
+      if (!this.adapters.fullNode.validateArraySize(hashes.length)) {
         return res.status(400).json({ error: 'Array too large.' })
       }
 
@@ -238,7 +238,7 @@ class BlockchainRESTController {
         })
       }
 
-      if (!this.adapters.fullNode.validateArraySize(txids.length, { isProUser: Boolean(req.locals?.proLimit) })) {
+      if (!this.adapters.fullNode.validateArraySize(txids.length)) {
         return res.status(400).json({ error: 'Array too large.' })
       }
 
@@ -415,7 +415,7 @@ class BlockchainRESTController {
         })
       }
 
-      if (!this.adapters.fullNode.validateArraySize(txids.length, { isProUser: Boolean(req.locals?.proLimit) })) {
+      if (!this.adapters.fullNode.validateArraySize(txids.length)) {
         return res.status(400).json({ error: 'Array too large.' })
       }
 
@@ -470,7 +470,7 @@ class BlockchainRESTController {
         })
       }
 
-      if (!this.adapters.fullNode.validateArraySize(proofs.length, { isProUser: Boolean(req.locals?.proLimit) })) {
+      if (!this.adapters.fullNode.validateArraySize(proofs.length)) {
         return res.status(400).json({ error: 'Array too large.' })
       }
 

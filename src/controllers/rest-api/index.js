@@ -7,9 +7,13 @@
 // Local libraries
 // import EventRouter from './event/index.js'
 // import ReqRouter from './req/index.js'
-import BlockchainRouter from './full-node/blockchain/index.js'
-import ControlRouter from './full-node/control/index.js'
-import DSProofRouter from './full-node/dsproof/index.js'
+import BlockchainRouter from './full-node/blockchain/router.js'
+import ControlRouter from './full-node/control/router.js'
+import DSProofRouter from './full-node/dsproof/router.js'
+import FulcrumRouter from './fulcrum/router.js'
+import MiningRouter from './full-node/mining/router.js'
+import RawTransactionsRouter from './full-node/rawtransactions/router.js'
+import SlpRouter from './slp/router.js'
 import config from '../../config/index.js'
 
 class RESTControllers {
@@ -64,6 +68,18 @@ class RESTControllers {
 
     const dsproofRouter = new DSProofRouter(dependencies)
     dsproofRouter.attach(app)
+
+    const fulcrumRouter = new FulcrumRouter(dependencies)
+    fulcrumRouter.attach(app)
+
+    const miningRouter = new MiningRouter(dependencies)
+    miningRouter.attach(app)
+
+    const rawtransactionsRouter = new RawTransactionsRouter(dependencies)
+    rawtransactionsRouter.attach(app)
+
+    const slpRouter = new SlpRouter(dependencies)
+    slpRouter.attach(app)
   }
 }
 
