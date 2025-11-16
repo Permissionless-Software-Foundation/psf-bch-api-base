@@ -1,7 +1,7 @@
 {
   "name": "psf-bch-api",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "psf-bch-api.js",
   "type": "module",
   "scripts": {
     "start": "node bin/server.js",
