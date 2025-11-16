@@ -1,6 +1,6 @@
 {
   "name": "psf-bch-api",
-  "version": "1.0.0",
+  "version": "7.0.0",
   "main": "psf-bch-api.js",
   "type": "module",
   "scripts": {
