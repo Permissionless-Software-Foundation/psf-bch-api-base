@@ -1,5 +1,5 @@
 /*
-  REST API Controller for the /full-node/fulcrum routes.
+  REST API Controller for the /fulcrum routes.
 */
 
 import wlogger from '../../../adapters/wlogger.js'
@@ -44,7 +44,7 @@ class FulcrumRESTController {
   }
 
   /**
-   * @api {get} /v6/full-node/fulcrum/ Service status
+   * @api {get} /v6/fulcrum/ Service status
    * @apiName FulcrumRoot
    * @apiGroup Fulcrum
    *
@@ -87,7 +87,7 @@ class FulcrumRESTController {
   }
 
   /**
-   * @api {get} /v6/full-node/fulcrum/balance/:address Get balance for a single address
+   * @api {get} /v6/fulcrum/balance/:address Get balance for a single address
    * @apiName GetBalance
    * @apiGroup Fulcrum
    * @apiDescription Returns an object with confirmed and unconfirmed balance associated with an address.
@@ -113,7 +113,7 @@ class FulcrumRESTController {
   }
 
   /**
-   * @api {post} /v6/full-node/fulcrum/balance Get balances for an array of addresses
+   * @api {post} /v6/fulcrum/balance Get balances for an array of addresses
    * @apiName GetBalances
    * @apiGroup Fulcrum
    * @apiDescription Returns an array of balances associated with an array of addresses. Limited to 20 items per request.
@@ -158,7 +158,7 @@ class FulcrumRESTController {
   }
 
   /**
-   * @api {get} /v6/full-node/fulcrum/utxos/:address Get utxos for a single address
+   * @api {get} /v6/fulcrum/utxos/:address Get utxos for a single address
    * @apiName GetUtxos
    * @apiGroup Fulcrum
    * @apiDescription Returns an object with UTXOs associated with an address.
@@ -184,7 +184,7 @@ class FulcrumRESTController {
   }
 
   /**
-   * @api {post} /v6/full-node/fulcrum/utxos Get utxos for an array of addresses
+   * @api {post} /v6/fulcrum/utxos Get utxos for an array of addresses
    * @apiName GetUtxosBulk
    * @apiGroup Fulcrum
    * @apiDescription Returns an array of objects with UTXOs associated with an address. Limited to 20 items per request.
@@ -229,7 +229,7 @@ class FulcrumRESTController {
   }
 
   /**
-   * @api {get} /v6/full-node/fulcrum/tx/data/:txid Get transaction details for a TXID
+   * @api {get} /v6/fulcrum/tx/data/:txid Get transaction details for a TXID
    * @apiName GetTransactionDetails
    * @apiGroup Fulcrum
    * @apiDescription Returns an object with transaction details of the TXID
@@ -253,7 +253,7 @@ class FulcrumRESTController {
   }
 
   /**
-   * @api {post} /v6/full-node/fulcrum/tx/data Get transaction details for an array of TXIDs
+   * @api {post} /v6/fulcrum/tx/data Get transaction details for an array of TXIDs
    * @apiName GetTransactionDetailsBulk
    * @apiGroup Fulcrum
    * @apiDescription Returns an array of objects with transaction details of an array of TXIDs. Limited to 20 items per request.
@@ -285,7 +285,7 @@ class FulcrumRESTController {
   }
 
   /**
-   * @api {post} /v6/full-node/fulcrum/tx/broadcast Broadcast a raw transaction
+   * @api {post} /v6/fulcrum/tx/broadcast Broadcast a raw transaction
    * @apiName BroadcastTransaction
    * @apiGroup Fulcrum
    * @apiDescription Broadcast a raw transaction and return the transaction ID on success or error on failure.
@@ -309,7 +309,7 @@ class FulcrumRESTController {
   }
 
   /**
-   * @api {get} /v6/full-node/fulcrum/block/headers/:height Get block headers
+   * @api {get} /v6/fulcrum/block/headers/:height Get block headers
    * @apiName GetBlockHeaders
    * @apiGroup Fulcrum
    * @apiDescription Returns an array with block headers starting at the block height
@@ -347,7 +347,7 @@ class FulcrumRESTController {
   }
 
   /**
-   * @api {post} /v6/full-node/fulcrum/block/headers Get block headers for an array of height + count pairs
+   * @api {post} /v6/fulcrum/block/headers Get block headers for an array of height + count pairs
    * @apiName GetBlockHeadersBulk
    * @apiGroup Fulcrum
    * @apiDescription Returns an array of objects with block headers. Limited to 20 items per request.
@@ -394,7 +394,7 @@ class FulcrumRESTController {
   }
 
   /**
-   * @api {get} /v6/full-node/fulcrum/transactions/:address Get transaction history for a single address
+   * @api {get} /v6/fulcrum/transactions/:address Get transaction history for a single address
    * @apiName GetTransactions
    * @apiGroup Fulcrum
    * @apiDescription Returns an array of historical transactions associated with an address. Results are returned in descending order (most recent TX first). Passing allTxs=true will return the entire transaction history, otherwise, only the last 100 TXIDs will be returned.
@@ -431,7 +431,7 @@ class FulcrumRESTController {
   }
 
   /**
-   * @api {post} /v6/full-node/fulcrum/transactions Get the transaction history for an array of addresses
+   * @api {post} /v6/fulcrum/transactions Get the transaction history for an array of addresses
    * @apiName GetTransactionsBulk
    * @apiGroup Fulcrum
    * @apiDescription Returns an array of transactions associated with an array of addresses. Limited to 20 items per request. Passing allTxs=true will return the entire transaction history, otherwise, only the last 100 TXIDs will be returned.
@@ -480,7 +480,7 @@ class FulcrumRESTController {
   }
 
   /**
-   * @api {get} /v6/full-node/fulcrum/unconfirmed/:address Get unconfirmed utxos for a single address
+   * @api {get} /v6/fulcrum/unconfirmed/:address Get unconfirmed utxos for a single address
    * @apiName GetMempool
    * @apiGroup Fulcrum
    * @apiDescription Returns an object with unconfirmed UTXOs associated with an address.
@@ -506,7 +506,7 @@ class FulcrumRESTController {
   }
 
   /**
-   * @api {post} /v6/full-node/fulcrum/unconfirmed Get unconfirmed utxos for an array of addresses
+   * @api {post} /v6/fulcrum/unconfirmed Get unconfirmed utxos for an array of addresses
    * @apiName GetMempoolBulk
    * @apiGroup Fulcrum
    * @apiDescription Returns an array of objects with unconfirmed UTXOs associated with an address. Limited to 20 items per request.
