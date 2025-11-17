@@ -73,7 +73,7 @@ export default {
   },
 
   // REST API URL for wallet operations
-  restURL: process.env.REST_URL || process.env.LOCAL_RESTURL || 'http://127.0.0.1:3000/v5/',
+  restURL: process.env.REST_URL || process.env.LOCAL_RESTURL || 'http://127.0.0.1:5942/v6/',
 
   // IPFS Gateway URL
   ipfsGateway: process.env.IPFS_GATEWAY || 'p2wdb-gateway-678.fullstack.cash',

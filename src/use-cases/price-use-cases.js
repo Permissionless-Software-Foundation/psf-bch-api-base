@@ -2,9 +2,13 @@
   Use cases for price-related operations.
 */
 
-import wlogger from '../adapters/wlogger.js'
+// Global npm libraries
 import axios from 'axios'
 import SlpWallet from 'minimal-slp-wallet'
+import PSFFPP from 'psffpp'
+
+// Local libraries
+import wlogger from '../adapters/wlogger.js'
 import config from '../config/index.js'
 
 class PriceUseCases {
@@ -63,9 +67,6 @@ class PriceUseCases {
         restURL: this.config.restURL
       })
       await wallet.walletInfoPromise
-
-      let PSFFPP = await import('psffpp')
-      PSFFPP = PSFFPP.default
 
       const psffpp = new PSFFPP({ wallet })
 
