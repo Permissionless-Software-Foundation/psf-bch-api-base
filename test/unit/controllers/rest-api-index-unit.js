@@ -10,6 +10,7 @@ import BlockchainRouter from '../../../src/controllers/rest-api/full-node/blockc
 import ControlRouter from '../../../src/controllers/rest-api/full-node/control/router.js'
 import DSProofRouter from '../../../src/controllers/rest-api/full-node/dsproof/router.js'
 import MiningRouter from '../../../src/controllers/rest-api/full-node/mining/router.js'
+import PriceRouter from '../../../src/controllers/rest-api/price/router.js'
 import RawTransactionsRouter from '../../../src/controllers/rest-api/full-node/rawtransactions/router.js'
 import FulcrumRouter from '../../../src/controllers/rest-api/fulcrum/router.js'
 import SlpRouter from '../../../src/controllers/rest-api/slp/router.js'
@@ -75,6 +76,10 @@ describe('#controllers/rest-api/index.js', () => {
         getMiningInfo: () => {},
         getNetworkHashPS: () => {}
       },
+      price: {
+        getBCHUSD: () => {},
+        getPsffppWritePrice: () => {}
+      },
       rawtransactions: {
         decodeRawTransaction: () => {},
         decodeRawTransactions: () => {},
@@ -126,6 +131,7 @@ describe('#controllers/rest-api/index.js', () => {
       const dsproofAttachStub = sandbox.stub(DSProofRouter.prototype, 'attach')
       const fulcrumAttachStub = sandbox.stub(FulcrumRouter.prototype, 'attach')
       const miningAttachStub = sandbox.stub(MiningRouter.prototype, 'attach')
+      const priceAttachStub = sandbox.stub(PriceRouter.prototype, 'attach')
       const rawtransactionsAttachStub = sandbox.stub(RawTransactionsRouter.prototype, 'attach')
       const slpAttachStub = sandbox.stub(SlpRouter.prototype, 'attach')
       const restControllers = new RESTControllers({
@@ -146,6 +152,8 @@ describe('#controllers/rest-api/index.js', () => {
       assert.equal(fulcrumAttachStub.getCall(0).args[0], app)
       assert.isTrue(miningAttachStub.calledOnce)
       assert.equal(miningAttachStub.getCall(0).args[0], app)
+      assert.isTrue(priceAttachStub.calledOnce)
+      assert.equal(priceAttachStub.getCall(0).args[0], app)
       assert.isTrue(rawtransactionsAttachStub.calledOnce)
       assert.equal(rawtransactionsAttachStub.getCall(0).args[0], app)
       assert.isTrue(slpAttachStub.calledOnce)

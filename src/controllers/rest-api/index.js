@@ -12,6 +12,7 @@ import ControlRouter from './full-node/control/router.js'
 import DSProofRouter from './full-node/dsproof/router.js'
 import FulcrumRouter from './fulcrum/router.js'
 import MiningRouter from './full-node/mining/router.js'
+import PriceRouter from './price/router.js'
 import RawTransactionsRouter from './full-node/rawtransactions/router.js'
 import SlpRouter from './slp/router.js'
 import config from '../../config/index.js'
@@ -74,6 +75,9 @@ class RESTControllers {
 
     const miningRouter = new MiningRouter(dependencies)
     miningRouter.attach(app)
+
+    const priceRouter = new PriceRouter(dependencies)
+    priceRouter.attach(app)
 
     const rawtransactionsRouter = new RawTransactionsRouter(dependencies)
     rawtransactionsRouter.attach(app)
