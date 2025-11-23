@@ -38,6 +38,11 @@ const x402Defaults = {
   priceSat
 }
 
+const basicAuthDefaults = {
+  enabled: normalizeBoolean(process.env.USE_BASIC_AUTH, false),
+  token: process.env.BASIC_AUTH_TOKEN || ''
+}
+
 export default {
   // Server port
   port: process.env.PORT || 5942,
@@ -79,6 +84,8 @@ export default {
   ipfsGateway: process.env.IPFS_GATEWAY || 'p2wdb-gateway-678.fullstack.cash',
 
   x402: x402Defaults,
+
+  basicAuth: basicAuthDefaults,
 
   // Version
   version
