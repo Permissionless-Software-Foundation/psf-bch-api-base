@@ -34,7 +34,7 @@ const priceSat = Number.isFinite(parsedPriceSat) && parsedPriceSat > 0 ? parsedP
 const x402Defaults = {
   enabled: normalizeBoolean(process.env.X402_ENABLED, true),
   facilitatorUrl: process.env.FACILITATOR_URL || 'http://localhost:4345/facilitator',
-  serverAddress: process.env.SERVER_BCH_ADDRESS || 'bitcoincash:qqlrzp23w08434twmvr4fxw672whkjy0py26r63g3d',
+  serverAddress: process.env.SERVER_BCH_ADDRESS || 'bitcoincash:qqsrke9lh257tqen99dkyy2emh4uty0vky9y0z0lsr',
   priceSat
 }
 
