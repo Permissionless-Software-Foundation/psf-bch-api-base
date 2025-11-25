@@ -34,8 +34,13 @@ const priceSat = Number.isFinite(parsedPriceSat) && parsedPriceSat > 0 ? parsedP
 const x402Defaults = {
   enabled: normalizeBoolean(process.env.X402_ENABLED, true),
   facilitatorUrl: process.env.FACILITATOR_URL || 'http://localhost:4345/facilitator',
-  serverAddress: process.env.SERVER_BCH_ADDRESS || 'bitcoincash:qqlrzp23w08434twmvr4fxw672whkjy0py26r63g3d',
+  serverAddress: process.env.SERVER_BCH_ADDRESS || 'bitcoincash:qqsrke9lh257tqen99dkyy2emh4uty0vky9y0z0lsr',
   priceSat
+}
+
+const basicAuthDefaults = {
+  enabled: normalizeBoolean(process.env.USE_BASIC_AUTH, false),
+  token: process.env.BASIC_AUTH_TOKEN || ''
 }
 
 export default {
@@ -73,12 +78,14 @@ export default {
   },
 
   // REST API URL for wallet operations
-  restURL: process.env.REST_URL || process.env.LOCAL_RESTURL || 'http://127.0.0.1:3000/v5/',
+  restURL: process.env.REST_URL || process.env.LOCAL_RESTURL || 'http://127.0.0.1:5942/v6/',
 
   // IPFS Gateway URL
   ipfsGateway: process.env.IPFS_GATEWAY || 'p2wdb-gateway-678.fullstack.cash',
 
   x402: x402Defaults,
+
+  basicAuth: basicAuthDefaults,
 
   // Version
   version

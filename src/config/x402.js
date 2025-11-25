@@ -41,3 +41,10 @@ export function getX402Settings () {
     priceSat: config.x402?.priceSat
   }
 }
+
+export function getBasicAuthSettings () {
+  return {
+    enabled: Boolean(config.basicAuth?.enabled),
+    token: config.basicAuth?.token || ''
+  }
+}
