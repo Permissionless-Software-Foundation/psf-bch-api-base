@@ -86,7 +86,7 @@ class Server {
       // - If X402_ENABLED=false OR USE_BASIC_AUTH=false: Don't apply x402 (no rate limits)
       // - If X402_ENABLED=true AND USE_BASIC_AUTH=true: Apply x402 conditionally (bypass if basic auth valid)
 
-      // Only apply x402 if both are enabled
+      // Apply access control middleware based on configuration
       if (x402Settings.enabled && basicAuthSettings.enabled) {
         // X402_ENABLED=true AND USE_BASIC_AUTH=true: Apply x402 conditionally
         const routes = buildX402Routes(this.config.apiPrefix)
@@ -112,9 +112,34 @@ class Server {
         }
 
         app.use(conditionalX402Middleware)
+      } else if (basicAuthSettings.enabled && !x402Settings.enabled) {
+        // USE_BASIC_AUTH=true AND X402_ENABLED=false: Require basic auth, reject unauthenticated requests
+        wlogger.info('Basic auth enforcement enabled (x402 disabled)')
+
+        // Middleware that rejects requests without valid basic auth
+        const requireBasicAuthMiddleware = (req, res, next) => {
+          // Skip auth check for health endpoint and root
+          if (req.path === '/health' || req.path === '/') {
+            return next()
+          }
+
+          // If basic auth is valid, allow the request
+          if (req.locals?.basicAuthValid === true) {
+            return next()
+          }
+
+          // Reject unauthenticated requests
+          wlogger.warn(`Unauthenticated request rejected: ${req.method} ${req.path}`)
+          return res.status(401).json({
+            error: 'Unauthorized',
+            message: 'Valid Bearer token required in Authorization header'
+          })
+        }
+
+        app.use(requireBasicAuthMiddleware)
       } else {
-        // X402_ENABLED=false OR USE_BASIC_AUTH=false: No x402 middleware
-        wlogger.info('x402 middleware disabled via configuration')
+        // X402_ENABLED=false AND USE_BASIC_AUTH=false: No access control middleware
+        wlogger.info('No access control middleware enabled')
       }
 
       // Endpoint logging middleware
