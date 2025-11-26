@@ -9,7 +9,7 @@ import SlpTokenMedia from 'slp-token-media'
 import axios from 'axios'
 import config from '../config/index.js'
 
-const bchjs = new BCHJS()
+const bchjs = new BCHJS({ restURL: config.restURL })
 
 class SlpUseCases {
   constructor (localConfig = {}) {
@@ -259,6 +259,7 @@ class SlpUseCases {
 
       return mutableCid
     } catch (err) {
+      console.log('Error in SlpUseCases.getMutableCid()', err)
       wlogger.error('Error in SlpUseCases.getMutableCid()', err)
       return false
     }
@@ -271,7 +272,9 @@ class SlpUseCases {
       }
 
       // Get transaction data
+      console.log('Decoding OP_RETURN for TXID: ', txid)
       const txData = await this.bchjs.Electrumx.txData(txid)
+      console.log(`TXID ${txid}: ${JSON.stringify(txData, null, 2)}`)
       let data = false
 
       // Map the vout of the transaction in search of an OP_RETURN
@@ -291,6 +294,7 @@ class SlpUseCases {
 
       return data
     } catch (error) {
+      console.log('Error in SlpUseCases.decodeOpReturn()', error)
       wlogger.error('Error in SlpUseCases.decodeOpReturn()', error)
       throw error
     }
