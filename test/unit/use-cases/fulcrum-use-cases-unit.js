@@ -24,7 +24,7 @@ describe('#fulcrum-use-cases.js', () => {
     }
 
     // Create a mock BCHJS instance with stubbed sortAllTxs method
-    const mockBchjs = new BCHJS()
+    const mockBchjs = new BCHJS({ restURL: 'http://localhost:5942/v6/' })
     if (!mockBchjs.Electrumx) {
       mockBchjs.Electrumx = {}
     }

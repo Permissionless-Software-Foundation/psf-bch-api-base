@@ -4,8 +4,9 @@
 
 import wlogger from '../adapters/wlogger.js'
 import BCHJS from '@psf/bch-js'
+import config from '../config/index.js'
 
-const bchjs = new BCHJS()
+const bchjs = new BCHJS({ restURL: config.restURL })
 
 class FulcrumUseCases {
   constructor (localConfig = {}) {
@@ -53,7 +54,14 @@ class FulcrumUseCases {
   }
 
   async getTransactionDetails ({ txid }) {
-    return this.fulcrum.get(`electrumx/tx/data/${txid}`)
+    try {
+      const response = await this.fulcrum.get(`electrumx/tx/data/${txid}`)
+      console.log(`getTransactionDetails() TXID ${txid}: ${JSON.stringify(response, null, 2)}`)
+      return response
+    } catch (err) {
+      wlogger.error('Error in FulcrumUseCases.getTransactionDetails()', err)
+      throw err
+    }
   }
 
   async getTransactionDetailsBulk ({ txids, verbose }) {

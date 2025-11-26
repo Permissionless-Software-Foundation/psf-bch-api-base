@@ -4,8 +4,9 @@
 
 import wlogger from '../../../adapters/wlogger.js'
 import BCHJS from '@psf/bch-js'
+import config from '../../../config/index.js'
 
-const bchjs = new BCHJS()
+const bchjs = new BCHJS({ restURL: config.restURL })
 
 class SlpRESTController {
   constructor (localConfig = {}) {
@@ -201,6 +202,7 @@ class SlpRESTController {
       const result = await this.slpUseCases.getTokenData({ tokenId, withTxHistory })
       return res.status(200).json(result)
     } catch (err) {
+      console.log('Error in /v6/slp/token/data getTokenData(): ', err)
       return this.handleError(err, res)
     }
   }

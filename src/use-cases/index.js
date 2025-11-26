@@ -8,6 +8,7 @@
 import BlockchainUseCases from './full-node-blockchain-use-cases.js'
 import ControlUseCases from './full-node-control-use-cases.js'
 import DSProofUseCases from './full-node-dsproof-use-cases.js'
+import EncryptionUseCases from './encryption-use-cases.js'
 import FulcrumUseCases from './fulcrum-use-cases.js'
 import MiningUseCases from './full-node-mining-use-cases.js'
 import PriceUseCases from './price-use-cases.js'
@@ -31,6 +32,12 @@ class UseCases {
     this.price = new PriceUseCases({ adapters: this.adapters })
     this.rawtransactions = new RawTransactionsUseCases({ adapters: this.adapters })
     this.slp = new SlpUseCases({ adapters: this.adapters })
+
+    // Encryption use cases require access to other use cases (fulcrum, rawtransactions)
+    this.encryption = new EncryptionUseCases({
+      adapters: this.adapters,
+      useCases: this
+    })
   }
 
   // Run any startup Use Cases at the start of the app.
