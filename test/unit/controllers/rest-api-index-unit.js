@@ -9,6 +9,7 @@ import RESTControllers from '../../../src/controllers/rest-api/index.js'
 import BlockchainRouter from '../../../src/controllers/rest-api/full-node/blockchain/router.js'
 import ControlRouter from '../../../src/controllers/rest-api/full-node/control/router.js'
 import DSProofRouter from '../../../src/controllers/rest-api/full-node/dsproof/router.js'
+import EncryptionRouter from '../../../src/controllers/rest-api/encryption/router.js'
 import MiningRouter from '../../../src/controllers/rest-api/full-node/mining/router.js'
 import PriceRouter from '../../../src/controllers/rest-api/price/router.js'
 import RawTransactionsRouter from '../../../src/controllers/rest-api/full-node/rawtransactions/router.js'
@@ -100,6 +101,9 @@ describe('#controllers/rest-api/index.js', () => {
         getMutableCid: () => {},
         decodeOpReturn: () => {},
         getCIDData: () => {}
+      },
+      encryption: {
+        getPublicKey: () => {}
       }
     }
   })
@@ -129,6 +133,7 @@ describe('#controllers/rest-api/index.js', () => {
       const blockchainAttachStub = sandbox.stub(BlockchainRouter.prototype, 'attach')
       const controlAttachStub = sandbox.stub(ControlRouter.prototype, 'attach')
       const dsproofAttachStub = sandbox.stub(DSProofRouter.prototype, 'attach')
+      const encryptionAttachStub = sandbox.stub(EncryptionRouter.prototype, 'attach')
       const fulcrumAttachStub = sandbox.stub(FulcrumRouter.prototype, 'attach')
       const miningAttachStub = sandbox.stub(MiningRouter.prototype, 'attach')
       const priceAttachStub = sandbox.stub(PriceRouter.prototype, 'attach')
@@ -148,6 +153,8 @@ describe('#controllers/rest-api/index.js', () => {
       assert.equal(controlAttachStub.getCall(0).args[0], app)
       assert.isTrue(dsproofAttachStub.calledOnce)
       assert.equal(dsproofAttachStub.getCall(0).args[0], app)
+      assert.isTrue(encryptionAttachStub.calledOnce)
+      assert.equal(encryptionAttachStub.getCall(0).args[0], app)
       assert.isTrue(fulcrumAttachStub.calledOnce)
       assert.equal(fulcrumAttachStub.getCall(0).args[0], app)
       assert.isTrue(miningAttachStub.calledOnce)
