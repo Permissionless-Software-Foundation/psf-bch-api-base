@@ -32,7 +32,7 @@ describe('#slp-use-cases.js', () => {
     }
 
     // Create mock BCHJS
-    mockBchjs = new BCHJS()
+    mockBchjs = new BCHJS({ restURL: 'http://localhost:5942/v6/' })
     mockBchjs.Electrumx = {
       txData: sandbox.stub().resolves({
         details: {
