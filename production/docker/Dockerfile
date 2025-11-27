@@ -2,8 +2,6 @@
 #
 
 #IMAGE BUILD COMMANDS
-# ct-base-ubuntu = ubuntu 18.04 + nodejs v10 LTS
-#FROM christroutner/ct-base-ubuntu
 FROM ubuntu:22.04
 MAINTAINER Chris Troutner <chris.troutner@gmail.com>
 
@@ -47,39 +45,24 @@ RUN runuser -l safeuser -c "npm config set prefix '~/.npm-global'"
 
 # Clone the rest.bitcoin.com repository
 WORKDIR /home/safeuser
-RUN git clone https://github.com/christroutner/REST2NOSTR
+RUN git clone https://github.com/Permissionless-Software-Foundation/psf-bch-api
 
 # Switch to the desired branch. `master` is usually stable,
 # and `stage` has the most up-to-date changes.
-WORKDIR /home/safeuser/REST2NOSTR
-
-# For development: switch to unstable branch
-#RUN git checkout pin-ipfs
+WORKDIR /home/safeuser/psf-bch-api
 
 # Install dependencies
 RUN npm install
+RUN npm install minimal-slp-wallet
 
 # Generate the API docs
 RUN npm run docs
 
-#VOLUME /home/safeuser/keys
+COPY .env-local .env
 
-# Make leveldb folders
-#RUN mkdir leveldb
-#WORKDIR /home/safeuser/psf-slp-indexer/leveldb
-#RUN mkdir current
-#RUN mkdir zips
-#RUN mkdir backup
-#WORKDIR /home/safeuser/psf-slp-indexer/leveldb/zips
-#COPY restore-auto.sh restore-auto.sh
-#WORKDIR /home/safeuser/psf-slp-indexer
 
-# Expose the port the API will be served on.
-#EXPOSE 5011
+CMD ["npm", "start"]
 
-# Start the application.
-#COPY start-production.sh start-production.sh
-VOLUME start-rest2nostr.sh
-CMD ["./start-rest2nostr.sh"]
-
-#CMD ["npm", "start"]
+# Used to debug the container.
+#COPY temp.js temp.js
+#CMD ["node", "temp.js"]
