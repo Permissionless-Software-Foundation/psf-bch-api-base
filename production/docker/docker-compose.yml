@@ -1,9 +1,9 @@
 # Start the service with the command 'docker-compose up -d'
 
 services:
-    rest2nostr:
+    psf-bch-api:
       build: .
-      container_name: rest2nostr
+      container_name: psf-bch-api
       logging:
         driver: 'json-file'
         options:
@@ -15,5 +15,6 @@ services:
       ports:
         - '5942:5942' # <host port>:<container port>
       volumes:
-        - ./start-rest2nostr.sh:/home/safeuser/REST2NOSTR/start-rest2nostr.sh
+        #- ./start-rest2nostr.sh:/home/safeuser/REST2NOSTR/start-rest2nostr.sh
+        - ./.env:/home/safeuser/.env
       restart: always
