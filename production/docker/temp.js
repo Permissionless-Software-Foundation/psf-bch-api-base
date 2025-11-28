@@ -5,4 +5,3 @@ setInterval(() => {
 }, 10000)
 
 console.log('Timer started. Printing "hello world" every 10 seconds...')
-

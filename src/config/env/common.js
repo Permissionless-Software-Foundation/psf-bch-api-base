@@ -45,7 +45,7 @@ const basicAuthDefaults = {
 
 export default {
   // Server port
-  port: process.env.PORT || 5942,
+  port: parseInt(process.env.PORT, 10) || 5942,
 
   // Environment
   env: process.env.NODE_ENV || 'development',
