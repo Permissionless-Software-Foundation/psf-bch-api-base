@@ -274,7 +274,7 @@ class SlpUseCases {
       // Get transaction data
       console.log('Decoding OP_RETURN for TXID: ', txid)
       const txData = await this.bchjs.Electrumx.txData(txid)
-      console.log(`TXID ${txid}: ${JSON.stringify(txData, null, 2)}`)
+      // console.log(`TXID ${txid}: ${JSON.stringify(txData, null, 2)}`)
       let data = false
 
       // Map the vout of the transaction in search of an OP_RETURN
