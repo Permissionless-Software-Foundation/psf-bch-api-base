@@ -56,7 +56,7 @@ class FulcrumUseCases {
   async getTransactionDetails ({ txid }) {
     try {
       const response = await this.fulcrum.get(`electrumx/tx/data/${txid}`)
-      console.log(`getTransactionDetails() TXID ${txid}: ${JSON.stringify(response, null, 2)}`)
+      // console.log(`getTransactionDetails() TXID ${txid}: ${JSON.stringify(response, null, 2)}`)
       return response
     } catch (err) {
       wlogger.error('Error in FulcrumUseCases.getTransactionDetails()', err)
