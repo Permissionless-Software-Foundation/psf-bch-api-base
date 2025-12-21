@@ -83,8 +83,10 @@ class Server {
 
       // Apply x402 middleware based on configuration
       // Logic:
-      // - If X402_ENABLED=false OR USE_BASIC_AUTH=false: Don't apply x402 (no rate limits)
       // - If X402_ENABLED=true AND USE_BASIC_AUTH=true: Apply x402 conditionally (bypass if basic auth valid)
+      // - If X402_ENABLED=true AND USE_BASIC_AUTH=false: Apply x402 unconditionally (no basic auth bypass)
+      // - If X402_ENABLED=false AND USE_BASIC_AUTH=true: Require basic auth only
+      // - If X402_ENABLED=false AND USE_BASIC_AUTH=false: No access control
 
       // Apply access control middleware based on configuration
       if (x402Settings.enabled && basicAuthSettings.enabled) {
@@ -112,6 +114,21 @@ class Server {
         }
 
         app.use(conditionalX402Middleware)
+      } else if (x402Settings.enabled && !basicAuthSettings.enabled) {
+        // X402_ENABLED=true AND USE_BASIC_AUTH=false: Apply x402 unconditionally (no basic auth bypass)
+        const routes = buildX402Routes(this.config.apiPrefix)
+        const facilitatorOptions = x402Settings.facilitatorUrl
+          ? { url: x402Settings.facilitatorUrl }
+          : undefined
+
+        wlogger.info(`x402 middleware enabled (basic auth disabled); enforcing ${x402Settings.priceSat} satoshis per request`)
+
+        // Apply x402 middleware unconditionally - no basic auth bypass
+        app.use(x402PaymentMiddleware(
+          x402Settings.serverAddress,
+          routes,
+          facilitatorOptions
+        ))
       } else if (basicAuthSettings.enabled && !x402Settings.enabled) {
         // USE_BASIC_AUTH=true AND X402_ENABLED=false: Require basic auth, reject unauthenticated requests
         wlogger.info('Basic auth enforcement enabled (x402 disabled)')

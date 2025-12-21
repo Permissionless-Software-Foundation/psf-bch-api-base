@@ -26,7 +26,7 @@ export function buildX402Routes (apiPrefix = '/v6') {
       price: config.x402.priceSat,
       network: NETWORK,
       config: {
-        description: `${DEFAULT_DESCRIPTION} (2000 satoshis)`,
+        description: `${DEFAULT_DESCRIPTION} (${config.x402.priceSat} satoshis)`,
         maxTimeoutSeconds: DEFAULT_TIMEOUT_SECONDS
       }
     }
