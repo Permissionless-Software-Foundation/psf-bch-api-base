@@ -8,7 +8,7 @@ This is a REST API for communicating with Bitcoin Cash infrastructure. It replac
 
 ## x402-bch Payments
 
-All REST endpoints exposed under the `/v6` prefix are protected by the [`x402-bch-express`](https://www.npmjs.com/package/x402-bch-express) middleware. Each API call requires a BCH payment authorization for **2000 satoshis**. The middleware advertises payment requirements via HTTP 402 responses and validates incoming `X-PAYMENT` headers with a configured Facilitator.
+All REST endpoints exposed under the `/v6` prefix are protected by the [`x402-bch-express`](https://www.npmjs.com/package/x402-bch-express) middleware. Each API call requires a BCH payment authorization for **200 satoshis**. The middleware advertises payment requirements via HTTP 402 responses and validates incoming `X-PAYMENT` headers with a configured Facilitator.
 
 ### Configuration
 
@@ -17,7 +17,7 @@ Environment variables control the payment flow:
 - `X402_ENABLED` — set to `false` (case-insensitive) to disable the middleware. Defaults to enabled.
 - `SERVER_BCH_ADDRESS` — BCH cash address that receives funding transactions. Defaults to `bitcoincash:qqlrzp23w08434twmvr4fxw672whkjy0py26r63g3d`.
 - `FACILITATOR_URL` — Root URL of the facilitator service (e.g., `http://localhost:4345/facilitator`).
-- `X402_PRICE_SAT` — Optional; override the satoshi price per call (defaults to `2000`).
+- `X402_PRICE_SAT` — Optional; override the satoshi price per call (defaults to `200`).
 
 When `X402_ENABLED=false`, the server continues to operate without payment headers for local development or trusted deployments.
 

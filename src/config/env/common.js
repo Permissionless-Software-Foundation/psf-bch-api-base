@@ -26,10 +26,10 @@ const normalizeBoolean = (value, defaultValue) => {
   return defaultValue
 }
 
-// By default, the price per API call is 2000 satoshis.
+// By default, the price per API call is 200 satoshis.
 // But the user can override this value by setting the X402_PRICE_SAT environment variable.
 const parsedPriceSat = Number(process.env.X402_PRICE_SAT)
-const priceSat = Number.isFinite(parsedPriceSat) && parsedPriceSat > 0 ? parsedPriceSat : 2000
+const priceSat = Number.isFinite(parsedPriceSat) && parsedPriceSat > 0 ? parsedPriceSat : 200
 
 const x402Defaults = {
   enabled: normalizeBoolean(process.env.X402_ENABLED, true),
