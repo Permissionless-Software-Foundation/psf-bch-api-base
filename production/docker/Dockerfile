@@ -58,7 +58,7 @@ RUN npm install minimal-slp-wallet
 # Generate the API docs
 RUN npm run docs
 
-COPY .env-local .env
+COPY .env-example .env
 
 
 CMD ["npm", "start"]
