@@ -51,6 +51,8 @@ RUN git clone https://github.com/Permissionless-Software-Foundation/psf-bch-api
 # and `stage` has the most up-to-date changes.
 WORKDIR /home/safeuser/psf-bch-api
 
+RUN git checkout ct-unstable
+
 # Install dependencies
 RUN npm install
 RUN npm install minimal-slp-wallet
@@ -58,7 +60,7 @@ RUN npm install minimal-slp-wallet
 # Generate the API docs
 RUN npm run docs
 
-COPY .env-example .env
+COPY .env .env
 
 
 CMD ["npm", "start"]
