@@ -161,7 +161,7 @@ class Server {
 
       // Endpoint logging middleware
       app.use((req, res, next) => {
-        console.log(`Endpoint called: ${req.method} ${req.path}`)
+        console.log(`Endpoint called: ${req.method} ${req.path} by ${req.ip}`)
         res.on('finish', () => {
           console.log(`Endpoint responded: ${req.method} ${req.path} - ${res.statusCode}`)
         })
