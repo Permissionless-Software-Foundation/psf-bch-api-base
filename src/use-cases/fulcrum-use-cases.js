@@ -6,7 +6,7 @@ import wlogger from '../adapters/wlogger.js'
 import BCHJS from '@psf/bch-js'
 import config from '../config/index.js'
 
-const bchjs = new BCHJS({ 
+const bchjs = new BCHJS({
   restURL: config.restURL,
   bearerToken: config.basicAuth.token
 })
