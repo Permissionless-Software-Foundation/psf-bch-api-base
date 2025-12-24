@@ -15,17 +15,17 @@
   "license": "MIT",
   "description": "REST API proxy to Bitcoin Cash infrastructure",
   "dependencies": {
-    "@psf/bch-js": "7.1.2",
+    "@psf/bch-js": "7.1.4",
     "axios": "1.7.7",
     "cors": "2.8.5",
     "dotenv": "16.3.1",
     "express": "5.1.0",
-    "minimal-slp-wallet": "7.0.2",
+    "minimal-slp-wallet": "7.0.5",
     "psffpp": "1.2.1",
     "slp-token-media": "1.2.10",
     "winston": "3.11.0",
     "winston-daily-rotate-file": "4.7.1",
-    "x402-bch-express": "1.1.3"
+    "x402-bch-express": "2.0.0"
   },
   "devDependencies": {
     "apidoc": "1.2.0",
