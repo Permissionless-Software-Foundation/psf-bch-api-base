@@ -74,6 +74,19 @@ class Server {
         allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
       }))
 
+      // URL normalization middleware - collapse multiple slashes
+      app.use((req, res, next) => {
+        if (req.path && req.path.includes('//')) {
+          // Collapse multiple consecutive slashes into a single slash
+          const normalizedPath = req.path.replace(/\/+/g, '/')
+          // Reconstruct req.url with normalized path
+          const queryString = req.url.includes('?') ? req.url.substring(req.url.indexOf('?')) : ''
+          req.url = normalizedPath + queryString
+          req.path = normalizedPath
+        }
+        next()
+      })
+
       // Apply basic auth middleware if enabled
       // This must run before x402 middleware to set req.locals.basicAuthValid
       if (basicAuthSettings.enabled) {
