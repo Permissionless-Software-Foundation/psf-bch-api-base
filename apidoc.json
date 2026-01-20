@@ -1,0 +1,9 @@
+{
+  "name": "psf-bch-api REST API",
+  "version": "1.0.0",
+  "description": "REST API proxy to Bitcoin Cash infrastructure",
+  "title": "psf-bch-api REST API",
+  "url": "http://localhost:5942",
+  "sampleUrl": "http://localhost:5942"
+}
+
