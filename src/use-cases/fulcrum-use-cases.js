@@ -149,7 +149,7 @@ class FulcrumUseCases {
         console.log('getTransactionsBulk() bearerToken: ', bearerToken)
         if (bearerToken) {
           // Create a temporary bchjs instance with the bearer token from the request
-          const restURL = process.env.RESTURL || process.env.REST_URL || process.env.LOCAL_RESTURL || config.restURL
+          const restURL = config.restURL
 
           console.log('getTransactionsBulk() restURL: ', restURL)
           bchjsInstance = new BCHJS({
