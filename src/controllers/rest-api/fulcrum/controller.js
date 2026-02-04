@@ -424,7 +424,20 @@ class FulcrumRESTController {
 
       const cashAddr = this._validateAndConvertAddress(address)
 
-      const result = await this.fulcrumUseCases.getTransactions({ address: cashAddr, allTxs })
+      // Extract bearer token from request header if present
+      let bearerToken = null
+      if (req.headers && req.headers.authorization) {
+        const parts = req.headers.authorization.split(' ')
+        if (parts.length === 2 && parts[0] === 'Bearer') {
+          bearerToken = parts[1]
+        }
+      }
+
+      const result = await this.fulcrumUseCases.getTransactions({
+        address: cashAddr,
+        allTxs,
+        bearerToken
+      })
       return res.status(200).json(result)
     } catch (err) {
       return this.handleError(err, res)
@@ -470,9 +483,19 @@ class FulcrumRESTController {
         }
       }
 
+      // Extract bearer token from request header if present
+      let bearerToken = null
+      if (req.headers && req.headers.authorization) {
+        const parts = req.headers.authorization.split(' ')
+        if (parts.length === 2 && parts[0] === 'Bearer') {
+          bearerToken = parts[1]
+        }
+      }
+
       const result = await this.fulcrumUseCases.getTransactionsBulk({
         addresses: validatedAddresses,
-        allTxs
+        allTxs,
+        bearerToken
       })
       return res.status(200).json(result)
     } catch (err) {
