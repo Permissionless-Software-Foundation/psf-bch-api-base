@@ -49,10 +49,15 @@ export function basicAuthMiddleware (req, res, next) {
 
   const providedToken = parts[1]
 
+  // Debug logging
+  wlogger.verbose(`Basic auth check: providedToken="${providedToken}", configuredToken="${configuredToken}", path="${req.path}"`)
+
   // Compare tokens
   if (providedToken === configuredToken) {
     req.locals.basicAuthValid = true
     wlogger.verbose(`Basic auth validated for request to ${req.path}`)
+  } else {
+    wlogger.verbose(`Basic auth failed: token mismatch for request to ${req.path}`)
   }
 
   // Always continue to next middleware
