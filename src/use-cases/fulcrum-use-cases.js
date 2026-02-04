@@ -6,9 +6,14 @@ import wlogger from '../adapters/wlogger.js'
 import BCHJS from '@psf/bch-js'
 import config from '../config/index.js'
 
+// Use RESTURL (from test) or REST_URL (from psf-bch-api config) or fallback to config
+const restURL = process.env.RESTURL || process.env.REST_URL || process.env.LOCAL_RESTURL || config.restURL
+// Use BCHJSBEARERTOKEN (from test) or BASIC_AUTH_TOKEN (from psf-bch-api config) or fallback to config
+const bearerToken = process.env.BCHJSBEARERTOKEN || process.env.BASIC_AUTH_TOKEN || config.basicAuth.token
+
 const bchjs = new BCHJS({
-  restURL: config.restURL,
-  bearerToken: config.basicAuth.token
+  restURL,
+  bearerToken
 })
 
 class FulcrumUseCases {
