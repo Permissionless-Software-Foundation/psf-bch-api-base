@@ -17,7 +17,7 @@ psf-bch-api depends on three pieces of back end infrastructure:
 
 Front-end applications interact with psf-bch-api through libraries such as [bch-js](https://github.com/Permissionless-Software-Foundation/bch-js) or [bch-consumer](https://www.npmjs.com/package/bch-consumer).
 
-High-level documentation about the full Cash Stack is available at [CashStack.info](https://cashstack.info). Interactive API reference documentation is served by the running server at its root URL (e.g. `http://localhost:5942/`).
+High-level documentation about the full Cash Stack is available at [CashStack.info](https://cashstack.info). Interactive API reference documentation is served by the running server at its root URL (e.g. `http://localhost:5942/`), and a live version can be found at [bch.fullstack.cash](https://bch.fullstack.cash/).
 
 ## The .env File
 
