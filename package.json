@@ -9,7 +9,7 @@
     "lint": "standard --env mocha --fix",
     "test": "npm run lint && TEST=unit c8 mocha 'test/unit/**/*.js' --exit",
     "test:integration": "mocha --timeout 25000 'test/integration/**/*.js' --exit",
-    "coverage": "c8 --reporter=html mocha 'test/unit/**/*.js' --exit"
+    "coverage": "export NODE_ENV=test && c8 --reporter=html mocha 'test/unit/**/*.js' --exit"
   },
   "author": "Chris Troutner <chris.troutner@gmail.com>",
   "license": "MIT",
@@ -25,7 +25,8 @@
     "slp-token-media": "1.2.10",
     "winston": "3.11.0",
     "winston-daily-rotate-file": "4.7.1",
-    "x402-bch-express": "2.0.0"
+    "x402-axios": "1.1.0",
+    "x402-express": "1.1.0"
   },
   "devDependencies": {
     "apidoc": "1.2.0",
