@@ -47,6 +47,11 @@ export default {
   // Server port
   port: parseInt(process.env.PORT, 10) || 5942,
 
+  // HTTP server connection lifecycle configuration.
+  serverKeepAliveTimeoutMs: Number(process.env.SERVER_KEEPALIVE_TIMEOUT_MS || 3000),
+  serverHeadersTimeoutMs: Number(process.env.SERVER_HEADERS_TIMEOUT_MS || 65000),
+  serverRequestTimeoutMs: Number(process.env.SERVER_REQUEST_TIMEOUT_MS || 120000),
+
   // Environment
   env: process.env.NODE_ENV || 'development',
 

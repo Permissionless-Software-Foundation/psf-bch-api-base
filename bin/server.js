@@ -246,6 +246,11 @@ class Server {
         wlogger.info(`Server started on port ${this.config.port}`)
       })
 
+      // Explicit timeout settings reduce stale keep-alive socket reuse races.
+      this.server.keepAliveTimeout = this.config.serverKeepAliveTimeoutMs
+      this.server.headersTimeout = this.config.serverHeadersTimeoutMs
+      this.server.requestTimeout = this.config.serverRequestTimeoutMs
+
       this.server.on('error', (err) => {
         console.error('Server error:', err)
         wlogger.error('Server error:', err)
