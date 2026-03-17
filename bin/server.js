@@ -59,6 +59,7 @@ class Server {
     try {
       // Create an Express instance.
       const app = express()
+      app.set('trust proxy', true)
 
       const x402Settings = getX402Settings()
       const basicAuthSettings = getBasicAuthSettings()
@@ -183,7 +184,10 @@ class Server {
 
       // Request logging middleware
       app.use((req, res, next) => {
-        wlogger.info(`${req.method} ${req.path}`)
+        wlogger.info(`${req.method} ${req.path}`, {
+          client_ip: req.ip,
+          remote_address: req.socket?.remoteAddress || null
+        })
         next()
       })
 
