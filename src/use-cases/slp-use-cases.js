@@ -98,7 +98,14 @@ class SlpUseCases {
     try {
       return await this.slpIndexer.post('slp/tx/', { txid })
     } catch (err) {
-      wlogger.error('Error in SlpUseCases.getTxid()', err)
+      const isCommonMissingTxError =
+        err?.status === 404 &&
+        typeof err?.message === 'string' &&
+        err.message.includes('Key not found in database')
+
+      if (!isCommonMissingTxError) {
+        wlogger.error('Error in SlpUseCases.getTxid()', err)
+      }
       throw err
     }
   }

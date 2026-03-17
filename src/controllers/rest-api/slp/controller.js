@@ -208,7 +208,14 @@ class SlpRESTController {
   }
 
   handleError (err, res) {
-    wlogger.error('Error in SlpRESTController:', err)
+    const isCommonMissingTxError =
+      err?.status === 404 &&
+      typeof err?.message === 'string' &&
+      err.message.includes('Key not found in database')
+
+    if (!isCommonMissingTxError) {
+      wlogger.error('Error in SlpRESTController:', err)
+    }
 
     const status = err.status || 500
     const message = err.message || 'Internal server error'
