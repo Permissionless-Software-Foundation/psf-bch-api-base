@@ -4,3 +4,4 @@ logs/
 docs/
 coverage/
 start.sh
+start-facilitator.sh

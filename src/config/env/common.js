@@ -33,10 +33,11 @@ const priceUSDC = Number.isFinite(parsedPrice) && parsedPrice > 0 ? parsedPrice 
 
 const x402Defaults = {
   enabled: normalizeBoolean(process.env.X402_ENABLED, true),
-  facilitatorUrl: process.env.FACILITATOR_URL || 'http://localhost:4345/facilitator',
+  facilitatorUrl: process.env.x402_FACILITATOR_URL || 'http://localhost:4022',
   serverAddress: process.env.SERVER_BASE_ADDRESS || 'bitcoincash:qqsrke9lh257tqen99dkyy2emh4uty0vky9y0z0lsr',
   facilitatorKeyId: process.env.FACILITATOR_KEY_ID || '',
   facilitatorSecretKey: process.env.FACILITATOR_SECRET_KEY || '',
+  network: process.env.x402_NETWORK || 'base-sepolia',
   priceUSDC
 }
 

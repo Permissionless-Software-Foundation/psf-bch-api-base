@@ -15,7 +15,10 @@
   "license": "MIT",
   "description": "REST API proxy to Bitcoin Cash infrastructure",
   "dependencies": {
+    "@coinbase/cdp-sdk": "1.45.0",
     "@psf/bch-js": "7.1.11",
+    "@x402/core": "2.6.0",
+    "@x402/evm": "2.6.0",
     "axios": "1.7.7",
     "cors": "2.8.5",
     "dotenv": "16.3.1",
@@ -26,7 +29,8 @@
     "winston": "3.11.0",
     "winston-daily-rotate-file": "4.7.1",
     "x402-axios": "1.1.0",
-    "x402-express": "1.1.0"
+    "x402-express": "1.1.0",
+    "x402-fetch": "1.1.0"
   },
   "devDependencies": {
     "apidoc": "1.2.0",

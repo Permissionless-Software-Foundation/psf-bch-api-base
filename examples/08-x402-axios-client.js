@@ -1,26 +1,32 @@
 import axios from 'axios'
 import { withPaymentInterceptor } from 'x402-axios'
-import { mnemonicToAccount } from 'viem/accounts'
-import { baseSepolia } from 'viem/chains'
+import { privateKeyToAccount } from 'viem/accounts'
+import { base } from 'viem/chains'
+// import { baseSepolia } from 'viem/chains' // Testnet
+
 import { createWalletClient, http } from 'viem'
 
 const baseURL = 'http://localhost:5942'
 const endpointPath = '/v6/full-node/blockchain/getBlockchainInfo'
-const mnemonic = process.env.MNEMONIC || ''
+const pKey = process.env.PRIVATE_KEY || ''
 
-if (!mnemonic) throw new Error('MNEMONIC env required!')
-
+// PRIVATE_KEY=0x... node examples/08-x402-axios-client.js
+if (!pKey) throw new Error('PRIVATE_KEY env required!')
+console.log('pKey', pKey)
 // Create a wallet client
-const account = mnemonicToAccount(mnemonic)
+const account = privateKeyToAccount(pKey)
 const client = createWalletClient({
   account,
   transport: http(),
-  chain: baseSepolia
+  chain: base
 })
 
 const api = withPaymentInterceptor(
   axios.create({
-    baseURL
+    baseURL,
+    headers: {
+      'Content-Type': 'application/json'
+    }
   }),
   client
 )
