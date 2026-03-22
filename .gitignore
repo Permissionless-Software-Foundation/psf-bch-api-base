@@ -3,3 +3,5 @@ node_modules/
 logs/
 docs/
 coverage/
+start.sh
+start-facilitator.sh

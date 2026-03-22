@@ -28,14 +28,17 @@ const normalizeBoolean = (value, defaultValue) => {
 
 // By default, the price per API call is 200 satoshis.
 // But the user can override this value by setting the X402_PRICE_SAT environment variable.
-const parsedPriceSat = Number(process.env.X402_PRICE_SAT)
-const priceSat = Number.isFinite(parsedPriceSat) && parsedPriceSat > 0 ? parsedPriceSat : 200
+const parsedPrice = Number(process.env.X402_PRICE_USDC)
+const priceUSDC = Number.isFinite(parsedPrice) && parsedPrice > 0 ? parsedPrice : 200
 
 const x402Defaults = {
   enabled: normalizeBoolean(process.env.X402_ENABLED, true),
-  facilitatorUrl: process.env.FACILITATOR_URL || 'http://localhost:4345/facilitator',
-  serverAddress: process.env.SERVER_BCH_ADDRESS || 'bitcoincash:qqsrke9lh257tqen99dkyy2emh4uty0vky9y0z0lsr',
-  priceSat
+  facilitatorUrl: process.env.x402_FACILITATOR_URL || 'http://localhost:4022',
+  serverAddress: process.env.SERVER_BASE_ADDRESS || 'bitcoincash:qqsrke9lh257tqen99dkyy2emh4uty0vky9y0z0lsr',
+  facilitatorKeyId: process.env.FACILITATOR_KEY_ID || '',
+  facilitatorSecretKey: process.env.FACILITATOR_SECRET_KEY || '',
+  network: process.env.x402_NETWORK || 'base-sepolia',
+  priceUSDC
 }
 
 const basicAuthDefaults = {

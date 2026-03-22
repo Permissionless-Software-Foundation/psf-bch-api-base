@@ -7,7 +7,8 @@
 import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
-import { paymentMiddleware as x402PaymentMiddleware } from 'x402-bch-express'
+import { paymentMiddleware as x402PaymentMiddleware } from 'x402-express'
+
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
 
@@ -15,7 +16,7 @@ import { dirname, join } from 'path'
 import config from '../src/config/index.js'
 import Controllers from '../src/controllers/index.js'
 import wlogger from '../src/adapters/wlogger.js'
-import { buildX402Routes, getX402Settings, getBasicAuthSettings } from '../src/config/x402.js'
+import { buildX402Routes, getX402Settings, getBasicAuthSettings, createAuthHeader } from '../src/config/x402.js'
 import { basicAuthMiddleware } from '../src/middleware/basic-auth.js'
 
 // Load environment variables
@@ -105,14 +106,20 @@ class Server {
       if (x402Settings.enabled && basicAuthSettings.enabled) {
         // X402_ENABLED=true AND USE_BASIC_AUTH=true: Apply x402 conditionally
         const routes = buildX402Routes(this.config.apiPrefix)
-        const facilitatorOptions = x402Settings.facilitatorUrl
-          ? { url: x402Settings.facilitatorUrl }
-          : undefined
+        let facilitatorOptions = x402Settings.facilitatorUrl
 
-        wlogger.info(`x402 middleware enabled with basic auth bypass; enforcing ${x402Settings.priceSat} satoshis per request (unless basic auth provided)`)
+        if (facilitatorOptions) {
+          facilitatorOptions = {
+            url: x402Settings.facilitatorUrl,
+            createAuthHeaders: createAuthHeader
+          }
+        }
+
+        wlogger.info(`x402 middleware enabled with basic auth bypass; enforcing ${x402Settings.priceUSDC} satoshis per request (unless basic auth provided)`)
 
         // Create conditional x402 middleware that bypasses if basic auth is valid
         const conditionalX402Middleware = (req, res, next) => {
+          // req.headers['accept'] = 'application/json';
           // If basic auth is valid, bypass x402
           if (req.locals?.basicAuthValid === true) {
             return next()
@@ -130,11 +137,16 @@ class Server {
       } else if (x402Settings.enabled && !basicAuthSettings.enabled) {
         // X402_ENABLED=true AND USE_BASIC_AUTH=false: Apply x402 unconditionally (no basic auth bypass)
         const routes = buildX402Routes(this.config.apiPrefix)
-        const facilitatorOptions = x402Settings.facilitatorUrl
-          ? { url: x402Settings.facilitatorUrl }
-          : undefined
+        let facilitatorOptions = x402Settings.facilitatorUrl
 
-        wlogger.info(`x402 middleware enabled (basic auth disabled); enforcing ${x402Settings.priceSat} satoshis per request`)
+        if (facilitatorOptions) {
+          facilitatorOptions = {
+            url: x402Settings.facilitatorUrl,
+            createAuthHeaders: createAuthHeader
+          }
+        }
+
+        wlogger.info(`x402 middleware enabled (basic auth disabled); enforcing ${x402Settings.priceUSDC} satoshis per request`)
 
         // Apply x402 middleware unconditionally - no basic auth bypass
         app.use(x402PaymentMiddleware(
