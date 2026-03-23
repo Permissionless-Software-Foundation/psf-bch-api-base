@@ -1,0 +1,86 @@
+# psf-bch-api - Bitcoin Cash Blockchain API
+
+> A comprehensive REST API for Bitcoin Cash blockchain data, with x402 micropayment support.
+
+## Overview
+
+psf-bch-api provides REST API access to Bitcoin Cash (BCH) blockchain infrastructure. It aggregates data from multiple sources (full node, Fulcrum indexer, SLP token indexer) into a unified API interface.
+
+**Payment Model:** x402 micropayments (~$0.001/call via USDC on Base, or BCH on x402-bch)
+
+**Base URL:** https://x402.fullstack.cash/v6
+
+## API Endpoints
+
+### Fulcrum (Address/UTXO Operations)
+- `GET /v6/fulcrum/balance/:address` - Get BCH balance for an address
+- `POST /v6/fulcrum/balance` - Bulk balance lookup (array of addresses)
+- `GET /v6/fulcrum/utxos/:address` - Get UTXOs for an address
+- `POST /v6/fulcrum/utxos` - Bulk UTXO lookup
+- `GET /v6/fulcrum/tx/data/:txid` - Get transaction details
+- `POST /v6/fulcrum/tx/data` - Bulk transaction lookup
+- `POST /v6/fulcrum/tx/broadcast` - Broadcast raw transaction
+- `GET /v6/fulcrum/transactions/:address` - Get transaction history for address
+- `POST /v6/fulcrum/transactions` - Bulk transaction history lookup
+
+### Full Node (Blockchain Data)
+- `GET /v6/full-node/blockchain/getBestBlockHash` - Get best block hash
+- `GET /v6/full-node/blockchain/getBlockchainInfo` - Get blockchain info
+- `GET /v6/full-node/blockchain/getBlockCount` - Get current block height
+- `GET /v6/full-node/blockchain/getBlockHash/:height` - Get block hash by height
+- `POST /v6/full-node/blockchain/getBlock` - Get block data
+- `GET /v6/full-node/blockchain/getBlockHeader/:hash` - Get block header
+- `GET /v6/full-node/blockchain/getDifficulty` - Get network difficulty
+- `GET /v6/full-node/blockchain/getMempoolInfo` - Get mempool info
+- `GET /v6/full-node/blockchain/getRawMempool` - Get raw mempool
+
+### Raw Transactions
+- `GET /v6/full-node/rawtransactions/getRawTransaction/:txid` - Get raw transaction
+- `POST /v6/full-node/rawtransactions/getRawTransaction` - Bulk raw transaction lookup
+- `GET /v6/full-node/rawtransactions/decodeRawTransaction/:hex` - Decode raw transaction
+- `GET /v6/full-node/rawtransactions/sendRawTransaction/:hex` - Broadcast raw transaction
+
+### SLP Tokens (Simple Ledger Protocol)
+- `GET /v6/slp/status` - Get SLP indexer status
+- `POST /v6/slp/address` - Get SLP tokens at address
+- `POST /v6/slp/txid` - Get SLP transaction data
+- `POST /v6/slp/token` - Get SLP token stats
+- `POST /v6/slp/token/data` - Get full SLP token data
+
+### Price
+- `GET /v6/price/bchusd` - Get BCH/USD price
+- `GET /v6/price/psffpp` - Get PSFFPP write price
+
+### Encryption
+- `GET /v6/encryption/publickey/:address` - Get public key for address
+
+## Payment
+
+This API uses the x402 payment protocol. Requests require:
+- Payment header with signed authorization
+- Cost: ~$0.001 USD per call (USDC on Base)
+
+For more information on x402:
+- Documentation: https://docs.cdp.coinbase.com/x402/
+- Protocol: https://www.x402.org/
+
+## OpenAPI Specification
+
+Full API specification available at: `/openapi.json`
+
+## Code Examples
+
+Complete working examples for interacting with this API:
+- **JavaScript Examples:** https://github.com/Permissionless-Software-Foundation/psf-js-examples
+
+Includes examples for:
+- Querying balances and UTXOs
+- Broadcasting transactions
+- Working with SLP tokens
+- Handling x402 payments
+
+## Support
+
+- GitHub: https://github.com/Permissionless-Software-Foundation/psf-bch-api
+- FullStack.cash: https://fullstack.cash
+- Code Examples: https://github.com/Permissionless-Software-Foundation/psf-js-examples
