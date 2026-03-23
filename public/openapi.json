@@ -7,6 +7,10 @@
     "contact": {
       "name": "FullStack.cash",
       "url": "https://fullstack.cash"
+    },
+    "externalDocs": {
+      "description": "JavaScript Code Examples",
+      "url": "https://github.com/Permissionless-Software-Foundation/psf-js-examples"
     }
   },
   "servers": [

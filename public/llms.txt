@@ -68,7 +68,19 @@ For more information on x402:
 
 Full API specification available at: `/openapi.json`
 
+## Code Examples
+
+Complete working examples for interacting with this API:
+- **JavaScript Examples:** https://github.com/Permissionless-Software-Foundation/psf-js-examples
+
+Includes examples for:
+- Querying balances and UTXOs
+- Broadcasting transactions
+- Working with SLP tokens
+- Handling x402 payments
+
 ## Support
 
 - GitHub: https://github.com/Permissionless-Software-Foundation/psf-bch-api
 - FullStack.cash: https://fullstack.cash
+- Code Examples: https://github.com/Permissionless-Software-Foundation/psf-js-examples
