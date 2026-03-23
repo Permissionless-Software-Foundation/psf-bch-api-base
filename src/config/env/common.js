@@ -31,13 +31,20 @@ const normalizeBoolean = (value, defaultValue) => {
 const parsedPrice = Number(process.env.X402_PRICE_USDC)
 const priceUSDC = Number.isFinite(parsedPrice) && parsedPrice > 0 ? parsedPrice : 200
 
+// Network configuration: CDP requires CAIP-2 format (eip155:chainId)
+// base-sepolia = eip155:84532, base-mainnet = eip155:8453
+const x402Network = process.env.x402_NETWORK || 'eip155:8453'
+
 const x402Defaults = {
   enabled: normalizeBoolean(process.env.X402_ENABLED, true),
-  facilitatorUrl: process.env.x402_FACILITATOR_URL || 'http://localhost:4022',
+  // CDP Facilitator: https://api.cdp.coinbase.com/platform/v2/x402
+  // Custom/Local Facilitator: http://localhost:4022
+  facilitatorUrl: process.env.x402_FACILITATOR_URL || 'https://api.cdp.coinbase.com/platform/v2/x402',
   serverAddress: process.env.SERVER_BASE_ADDRESS || 'bitcoincash:qqsrke9lh257tqen99dkyy2emh4uty0vky9y0z0lsr',
   facilitatorKeyId: process.env.FACILITATOR_KEY_ID || '',
   facilitatorSecretKey: process.env.FACILITATOR_SECRET_KEY || '',
-  network: process.env.x402_NETWORK || 'base-sepolia',
+  // CDP requires CAIP-2 network format: eip155:8453 (base) or eip155:84532 (base-sepolia)
+  network: x402Network,
   priceUSDC
 }
 
