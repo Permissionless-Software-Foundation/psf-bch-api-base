@@ -1,9 +1,9 @@
 # Start the service with the command 'docker-compose up -d'
 
 services:
-    psf-bch-api:
+    psf-bch-api-x402-base:
       build: .
-      container_name: psf-bch-api
+      container_name: psf-bch-api-x402-base
       logging:
         driver: 'json-file'
         options:
@@ -13,7 +13,7 @@ services:
       #links:
       #  - mongo-slp-indexer
       ports:
-        - '5942:5942' # <host port>:<container port>
+        - '6100:6100' # <host port>:<container port>
       volumes:
         #- ./start-rest2nostr.sh:/home/safeuser/REST2NOSTR/start-rest2nostr.sh
         - ./.env:/home/safeuser/.env
