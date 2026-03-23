@@ -87,6 +87,16 @@ class FulcrumRESTController {
     return cashAddr
   }
 
+  _isValidTxid (txid) {
+    return typeof txid === 'string' && /^[a-fA-F0-9]{64}$/.test(txid)
+  }
+
+  _isCommonMissingTxError (err) {
+    return err?.status === 404 &&
+      typeof err?.message === 'string' &&
+      err.message.includes('Transaction not found')
+  }
+
   /**
    * @api {get} /v6/fulcrum/balance/:address Get balance for a single address
    * @apiName GetBalance
@@ -239,10 +249,10 @@ class FulcrumRESTController {
     try {
       const txid = req.params.txid
 
-      if (typeof txid !== 'string') {
+      if (!this._isValidTxid(txid)) {
         return res.status(400).json({
           success: false,
-          error: 'txid must be a string'
+          error: 'txid must be a 64-character hex string'
         })
       }
 
@@ -424,7 +434,20 @@ class FulcrumRESTController {
 
       const cashAddr = this._validateAndConvertAddress(address)
 
-      const result = await this.fulcrumUseCases.getTransactions({ address: cashAddr, allTxs })
+      // Extract bearer token from request header if present
+      let bearerToken = null
+      if (req.headers && req.headers.authorization) {
+        const parts = req.headers.authorization.split(' ')
+        if (parts.length === 2 && parts[0] === 'Bearer') {
+          bearerToken = parts[1]
+        }
+      }
+
+      const result = await this.fulcrumUseCases.getTransactions({
+        address: cashAddr,
+        allTxs,
+        bearerToken
+      })
       return res.status(200).json(result)
     } catch (err) {
       return this.handleError(err, res)
@@ -470,9 +493,19 @@ class FulcrumRESTController {
         }
       }
 
+      // Extract bearer token from request header if present
+      let bearerToken = null
+      if (req.headers && req.headers.authorization) {
+        const parts = req.headers.authorization.split(' ')
+        if (parts.length === 2 && parts[0] === 'Bearer') {
+          bearerToken = parts[1]
+        }
+      }
+
       const result = await this.fulcrumUseCases.getTransactionsBulk({
         addresses: validatedAddresses,
-        allTxs
+        allTxs,
+        bearerToken
       })
       return res.status(200).json(result)
     } catch (err) {
@@ -552,9 +585,17 @@ class FulcrumRESTController {
   }
 
   handleError (err, res) {
-    wlogger.error('Error in FulcrumRESTController:', err)
-
     const status = err.status || 500
+    const isCommonMissingTxError = this._isCommonMissingTxError(err)
+
+    if (isCommonMissingTxError) {
+      wlogger.info(`Fulcrum transaction not found: ${err.message}`)
+    } else if (status >= 500) {
+      wlogger.error('Error in FulcrumRESTController:', err)
+    } else {
+      wlogger.warn(`Fulcrum client error (${status}): ${err.message}`)
+    }
+
     const message = err.message || 'Internal server error'
 
     return res.status(status).json({ error: message })

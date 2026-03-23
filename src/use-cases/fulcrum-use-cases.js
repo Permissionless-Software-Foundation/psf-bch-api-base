@@ -6,9 +6,14 @@ import wlogger from '../adapters/wlogger.js'
 import BCHJS from '@psf/bch-js'
 import config from '../config/index.js'
 
+// Use RESTURL (from test) or REST_URL (from psf-bch-api config) or fallback to config
+const restURL = process.env.RESTURL || process.env.REST_URL || process.env.LOCAL_RESTURL || config.restURL
+// Use BCHJSBEARERTOKEN (from test) or BASIC_AUTH_TOKEN (from psf-bch-api config) or fallback to config
+const bearerToken = process.env.BCHJSBEARERTOKEN || process.env.BASIC_AUTH_TOKEN || config.basicAuth.token
+
 const bchjs = new BCHJS({
-  restURL: config.restURL,
-  bearerToken: config.basicAuth.token
+  restURL,
+  bearerToken
 })
 
 class FulcrumUseCases {
@@ -57,14 +62,9 @@ class FulcrumUseCases {
   }
 
   async getTransactionDetails ({ txid }) {
-    try {
-      const response = await this.fulcrum.get(`electrumx/tx/data/${txid}`)
-      // console.log(`getTransactionDetails() TXID ${txid}: ${JSON.stringify(response, null, 2)}`)
-      return response
-    } catch (err) {
-      wlogger.error('Error in FulcrumUseCases.getTransactionDetails()', err)
-      throw err
-    }
+    const response = await this.fulcrum.get(`electrumx/tx/data/${txid}`)
+    // console.log(`getTransactionDetails() TXID ${txid}: ${JSON.stringify(response, null, 2)}`)
+    return response
   }
 
   async getTransactionDetailsBulk ({ txids, verbose }) {
@@ -101,13 +101,24 @@ class FulcrumUseCases {
     }
   }
 
-  async getTransactions ({ address, allTxs }) {
+  async getTransactions ({ address, allTxs, bearerToken = null }) {
     try {
       const response = await this.fulcrum.get(`electrumx/transactions/${address}`)
 
       // Sort transactions in descending order, so that newest transactions are first.
       if (response.transactions && Array.isArray(response.transactions)) {
-        response.transactions = await this.bchjs.Electrumx.sortAllTxs(response.transactions, 'DESCENDING')
+        // Use bearer token from request if provided, otherwise use the default bchjs instance
+        let bchjsInstance = this.bchjs
+        if (bearerToken) {
+          // Create a temporary bchjs instance with the bearer token from the request
+          const restURL = process.env.RESTURL || process.env.REST_URL || process.env.LOCAL_RESTURL || config.restURL
+          bchjsInstance = new BCHJS({
+            restURL,
+            bearerToken
+          })
+        }
+
+        response.transactions = await bchjsInstance.Electrumx.sortAllTxs(response.transactions, 'DESCENDING')
 
         if (!allTxs) {
           // Return only the first 100 transactions of the history.
@@ -122,16 +133,31 @@ class FulcrumUseCases {
     }
   }
 
-  async getTransactionsBulk ({ addresses, allTxs }) {
+  async getTransactionsBulk ({ addresses, allTxs, bearerToken = null }) {
     try {
       const response = await this.fulcrum.post('electrumx/transactions/', { addresses })
 
       // Sort transactions in descending order for each address entry.
       if (response.transactions && Array.isArray(response.transactions)) {
+        // Use bearer token from request if provided, otherwise use the default bchjs instance
+        let bchjsInstance = this.bchjs
+
+        // console.log('getTransactionsBulk() bearerToken: ', bearerToken)
+        if (bearerToken) {
+          // Create a temporary bchjs instance with the bearer token from the request
+          const restURL = config.restURL
+
+          // console.log('getTransactionsBulk() restURL: ', restURL)
+          bchjsInstance = new BCHJS({
+            restURL,
+            bearerToken
+          })
+        }
+
         for (let i = 0; i < response.transactions.length; i++) {
           const thisEntry = response.transactions[i]
           if (thisEntry.transactions && Array.isArray(thisEntry.transactions)) {
-            thisEntry.transactions = await this.bchjs.Electrumx.sortAllTxs(thisEntry.transactions, 'DESCENDING')
+            thisEntry.transactions = await bchjsInstance.Electrumx.sortAllTxs(thisEntry.transactions, 'DESCENDING')
 
             if (!allTxs && thisEntry.transactions.length > 100) {
               // Extract only the first 100 transactions.

@@ -60,6 +60,7 @@ class Server {
     try {
       // Create an Express instance.
       const app = express()
+      app.set('trust proxy', true)
 
       const x402Settings = getX402Settings()
       const basicAuthSettings = getBasicAuthSettings()
@@ -195,7 +196,10 @@ class Server {
 
       // Request logging middleware
       app.use((req, res, next) => {
-        wlogger.info(`${req.method} ${req.path}`)
+        wlogger.info(`${req.method} ${req.path}`, {
+          client_ip: req.ip,
+          remote_address: req.socket?.remoteAddress || null
+        })
         next()
       })
 
@@ -257,6 +261,11 @@ class Server {
         console.log(`Server started on port ${this.config.port}`)
         wlogger.info(`Server started on port ${this.config.port}`)
       })
+
+      // Explicit timeout settings reduce stale keep-alive socket reuse races.
+      this.server.keepAliveTimeout = this.config.serverKeepAliveTimeoutMs
+      this.server.headersTimeout = this.config.serverHeadersTimeoutMs
+      this.server.requestTimeout = this.config.serverRequestTimeoutMs
 
       this.server.on('error', (err) => {
         console.error('Server error:', err)
