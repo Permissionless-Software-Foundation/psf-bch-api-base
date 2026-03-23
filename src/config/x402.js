@@ -3,8 +3,6 @@ import { generateJwt } from '@coinbase/cdp-sdk/auth'
 
 const DEFAULT_DESCRIPTION = 'Access to protected psf-bch-api resources'
 const DEFAULT_TIMEOUT_SECONDS = 120
-const NETWORK = config.x402.network
-if (!NETWORK) throw new Error('x402_NETWORK env required!')
 
 /**
  * Builds a route configuration map for x402-bch middleware.
@@ -21,6 +19,10 @@ export function buildX402Routes (apiPrefix = '/v6') {
     : `/${normalizedPrefix}`
 
   const routeKey = `${prefixWithSlash}/*`
+
+  // Get network from config (now supports CAIP-2 format: eip155:8453)
+  const NETWORK = config.x402.network
+  if (!NETWORK) throw new Error('x402_NETWORK env required!')
 
   return {
     network: NETWORK,
