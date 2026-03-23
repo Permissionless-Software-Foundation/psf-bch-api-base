@@ -6,7 +6,9 @@ import { base } from 'viem/chains'
 
 import { createWalletClient, http } from 'viem'
 
-const baseURL = 'http://localhost:5942'
+// const baseURL = 'http://localhost:5942' // Local
+const baseURL = 'https://x402.fullstack.cash' // Production
+
 const endpointPath = '/v6/full-node/blockchain/getBlockchainInfo'
 const pKey = process.env.PRIVATE_KEY || ''
 
