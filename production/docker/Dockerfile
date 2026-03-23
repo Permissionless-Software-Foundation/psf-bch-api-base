@@ -45,17 +45,17 @@ RUN runuser -l safeuser -c "npm config set prefix '~/.npm-global'"
 
 # Clone the rest.bitcoin.com repository
 WORKDIR /home/safeuser
-RUN git clone https://github.com/Permissionless-Software-Foundation/psf-bch-api
+RUN git clone https://github.com/Permissionless-Software-Foundation/psf-bch-api-base
 
 # Switch to the desired branch. `master` is usually stable,
 # and `stage` has the most up-to-date changes.
-WORKDIR /home/safeuser/psf-bch-api
+WORKDIR /home/safeuser/psf-bch-api-base
 
 RUN git checkout ct-unstable
 
 # Install dependencies
 RUN npm install
-RUN npm install minimal-slp-wallet
+#RUN npm install minimal-slp-wallet
 
 # Generate the API docs
 RUN npm run docs

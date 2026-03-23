@@ -1,9 +1,9 @@
 # Start the service with the command 'docker-compose up -d'
 
 services:
-    psf-bch-api:
+    psf-bch-api-x402:
       build: .
-      container_name: psf-bch-api
+      container_name: psf-bch-api-x402
       logging:
         driver: 'json-file'
         options:
