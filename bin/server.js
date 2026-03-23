@@ -252,6 +252,19 @@ class Server {
         res.sendFile(docsPath)
       })
 
+      // AI-friendly discovery endpoints
+      app.get('/llms.txt', (req, res) => {
+        const llmsPath = join(__dirname, '..', 'public', 'llms.txt')
+        res.setHeader('Content-Type', 'text/plain')
+        res.sendFile(llmsPath)
+      })
+
+      app.get('/openapi.json', (req, res) => {
+        const openapiPath = join(__dirname, '..', 'public', 'openapi.json')
+        res.setHeader('Content-Type', 'application/json')
+        res.sendFile(openapiPath)
+      })
+
       // MIDDLEWARE END
 
       console.log(`Running server in environment: ${this.config.env}`)
