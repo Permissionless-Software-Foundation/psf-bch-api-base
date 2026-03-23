@@ -1,0 +1,493 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "psf-bch-api",
+    "description": "Bitcoin Cash Blockchain API with x402 micropayment support. Provides access to BCH blockchain data, UTXOs, transactions, and SLP tokens via REST endpoints.",
+    "version": "7.0.0",
+    "contact": {
+      "name": "FullStack.cash",
+      "url": "https://fullstack.cash"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://x402.fullstack.cash/v6",
+      "description": "Production (x402 payments - USDC on Base)"
+    },
+    {
+      "url": "https://x402-bch.fullstack.cash/v6",
+      "description": "Production (x402 payments - BCH)"
+    },
+    {
+      "url": "https://bch.fullstack.cash/v6",
+      "description": "Development (free, rate-limited)"
+    }
+  ],
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Health Check",
+        "description": "Returns service health status",
+        "responses": {
+          "200": {
+            "description": "Service is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string", "example": "ok" },
+                    "service": { "type": "string" },
+                    "version": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fulcrum/balance/{address}": {
+      "get": {
+        "summary": "Get Balance",
+        "description": "Get Bitcoin Cash balance for a single address",
+        "parameters": [
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Bitcoin Cash address"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Balance information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "balance": { "type": "number" },
+                    "balanceConfirmed": { "type": "number" },
+                    "balanceUnconfirmed": { "type": "number" }
+                  }
+                }
+              }
+            }
+          },
+          "402": {
+            "description": "Payment required - x402 header missing"
+          }
+        }
+      }
+    },
+    "/fulcrum/utxos/{address}": {
+      "get": {
+        "summary": "Get UTXOs",
+        "description": "Get unspent transaction outputs for an address",
+        "parameters": [
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Bitcoin Cash address"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Array of UTXOs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "txid": { "type": "string" },
+                      "vout": { "type": "integer" },
+                      "satoshis": { "type": "integer" },
+                      "height": { "type": "integer" },
+                      "confirmations": { "type": "integer" }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fulcrum/tx/data/{txid}": {
+      "get": {
+        "summary": "Get Transaction Details",
+        "description": "Get detailed information about a transaction",
+        "parameters": [
+          {
+            "name": "txid",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Transaction ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Transaction details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "txid": { "type": "string" },
+                    "version": { "type": "integer" },
+                    "locktime": { "type": "integer" },
+                    "vin": { "type": "array" },
+                    "vout": { "type": "array" },
+                    "confirmations": { "type": "integer" },
+                    "time": { "type": "integer" },
+                    "blocktime": { "type": "integer" },
+                    "blockhash": { "type": "string" },
+                    "blockheight": { "type": "integer" },
+                    "size": { "type": "integer" },
+                    "valueIn": { "type": "number" },
+                    "valueOut": { "type": "number" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/fulcrum/tx/broadcast": {
+      "post": {
+        "summary": "Broadcast Transaction",
+        "description": "Broadcast a raw transaction to the BCH network",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "hex": { "type": "string", "description": "Raw transaction hex" }
+                },
+                "required": ["hex"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Transaction broadcast result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "txid": { "type": "string" },
+                    "message": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/full-node/blockchain/getBlockchainInfo": {
+      "get": {
+        "summary": "Get Blockchain Info",
+        "description": "Get general blockchain information including chain, blocks, difficulty",
+        "responses": {
+          "200": {
+            "description": "Blockchain info",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "chain": { "type": "string" },
+                    "blocks": { "type": "integer" },
+                    "headers": { "type": "integer" },
+                    "bestblockhash": { "type": "string" },
+                    "difficulty": { "type": "number" },
+                    "mediantime": { "type": "integer" },
+                    "verificationprogress": { "type": "number" },
+                    "chainwork": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/full-node/blockchain/getBlockCount": {
+      "get": {
+        "summary": "Get Block Count",
+        "description": "Get current block height",
+        "responses": {
+          "200": {
+            "description": "Current block count",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "blockcount": { "type": "integer" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/full-node/blockchain/getBlockHash/{height}": {
+      "get": {
+        "summary": "Get Block Hash",
+        "description": "Get block hash by height",
+        "parameters": [
+          {
+            "name": "height",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "integer" },
+            "description": "Block height"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Block hash",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "hash": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/full-node/rawtransactions/getRawTransaction/{txid}": {
+      "get": {
+        "summary": "Get Raw Transaction",
+        "description": "Get raw transaction hex by TXID",
+        "parameters": [
+          {
+            "name": "txid",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Transaction ID"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Raw transaction",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "hex": { "type": "string" },
+                    "txid": { "type": "string" },
+                    "version": { "type": "integer" },
+                    "locktime": { "type": "integer" },
+                    "vin": { "type": "array" },
+                    "vout": { "type": "array" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/full-node/rawtransactions/sendRawTransaction/{hex}": {
+      "get": {
+        "summary": "Send Raw Transaction",
+        "description": "Broadcast a raw transaction",
+        "parameters": [
+          {
+            "name": "hex",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "description": "Raw transaction hex"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Broadcast result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "txid": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/slp/status": {
+      "get": {
+        "summary": "SLP Status",
+        "description": "Get SLP token indexer status",
+        "responses": {
+          "200": {
+            "description": "SLP indexer status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string" },
+                    "blockHeight": { "type": "integer" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/slp/address": {
+      "post": {
+        "summary": "Get SLP Address Data",
+        "description": "Get SLP token balances for an address",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "address": { "type": "string", "description": "SLP address" }
+                },
+                "required": ["address"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "SLP token balances",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "balances": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "tokenId": { "type": "string" },
+                          "ticker": { "type": "string" },
+                          "name": { "type": "string" },
+                          "balance": { "type": "string" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/slp/token": {
+      "post": {
+        "summary": "Get Token Stats",
+        "description": "Get statistics for a specific SLP token",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "tokenId": { "type": "string", "description": "Token ID" }
+                },
+                "required": ["tokenId"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Token statistics"
+          }
+        }
+      }
+    },
+    "/price/bchusd": {
+      "get": {
+        "summary": "Get BCH Price",
+        "description": "Get current BCH/USD price",
+        "responses": {
+          "200": {
+            "description": "BCH price in USD",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "price": { "type": "number" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/encryption/publickey/{address}": {
+      "get": {
+        "summary": "Get Public Key",
+        "description": "Get public key for a Bitcoin Cash address",
+        "parameters": [
+          {
+            "name": "address",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Public key data"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "x402": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-PAYMENT",
+        "description": "x402 payment header with signed authorization"
+      }
+    }
+  },
+  "security": [
+    {
+      "x402": []
+    }
+  ]
+}
