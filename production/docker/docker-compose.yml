@@ -20,3 +20,4 @@ services:
         - ../data:/home/safeuser/psf-bch-api/production/data
         - ../data/logs:/home/safeuser/psf-bch-api/logs
       restart: always
+
