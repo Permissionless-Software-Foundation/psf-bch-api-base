@@ -17,7 +17,7 @@ services:
       volumes:
         #- ./start-rest2nostr.sh:/home/safeuser/REST2NOSTR/start-rest2nostr.sh
         - ./.env:/home/safeuser/.env
-        - ../data:/home/safeuser/psf-bch-api/production/data
-        - ../data/logs:/home/safeuser/psf-bch-api/logs
+        - ../data:/home/safeuser/psf-bch-api-base/production/data
+        - ../data/logs:/home/safeuser/psf-bch-api-base/logs
       restart: always
 
