@@ -83,6 +83,102 @@ describe('#price-use-cases.js', () => {
     })
   })
 
+  describe('#getPsfLiquidityPrice()', () => {
+    const validBody = {
+      usdPerBCH: 483.1,
+      bchBalance: 25.65337297,
+      tokenBalance: 39590.96686314,
+      usdPerToken: 0.50532753
+    }
+
+    it('should reject with 503 when proxy config is missing', async () => {
+      try {
+        await uut.getPsfLiquidityPrice()
+        assert.fail('Should have thrown an error')
+      } catch (err) {
+        assert.equal(err.status, 503)
+        assert.include(err.message, 'disabled')
+      }
+    })
+
+    it('should reject with 503 when proxy is disabled', async () => {
+      mockConfig.psfLiquidityProxy = {
+        enabled: false,
+        baseUrl: 'http://192.168.0.126:5000'
+      }
+
+      try {
+        await uut.getPsfLiquidityPrice()
+        assert.fail('Should have thrown an error')
+      } catch (err) {
+        assert.equal(err.status, 503)
+        assert.include(err.message, 'disabled')
+      }
+    })
+
+    it('should return payload when enabled and upstream returns valid JSON', async () => {
+      mockConfig.psfLiquidityProxy = {
+        enabled: true,
+        baseUrl: 'http://192.168.0.126:5000'
+      }
+      mockAxios.request.resolves({ data: { ...validBody } })
+
+      const result = await uut.getPsfLiquidityPrice()
+
+      assert.deepEqual(result, validBody)
+      assert.isTrue(mockAxios.request.calledOnce)
+      const callArgs = mockAxios.request.getCall(0).args[0]
+      assert.equal(callArgs.method, 'get')
+      assert.equal(callArgs.url, 'http://192.168.0.126:5000/price')
+      assert.equal(callArgs.timeout, 15000)
+    })
+
+    it('should normalize base URL trailing slash before /price', async () => {
+      mockConfig.psfLiquidityProxy = {
+        enabled: true,
+        baseUrl: 'http://example.com:5000/'
+      }
+      mockAxios.request.resolves({ data: { ...validBody } })
+
+      await uut.getPsfLiquidityPrice()
+
+      const callArgs = mockAxios.request.getCall(0).args[0]
+      assert.equal(callArgs.url, 'http://example.com:5000/price')
+    })
+
+    it('should reject with 502 when upstream body is invalid', async () => {
+      mockConfig.psfLiquidityProxy = {
+        enabled: true,
+        baseUrl: 'http://192.168.0.126:5000'
+      }
+      mockAxios.request.resolves({ data: { usdPerBCH: 'not-a-number' } })
+
+      try {
+        await uut.getPsfLiquidityPrice()
+        assert.fail('Should have thrown an error')
+      } catch (err) {
+        assert.equal(err.status, 502)
+        assert.include(err.message, 'Invalid response')
+      }
+    })
+
+    it('should propagate axios errors', async () => {
+      mockConfig.psfLiquidityProxy = {
+        enabled: true,
+        baseUrl: 'http://192.168.0.126:5000'
+      }
+      const error = new Error('network down')
+      mockAxios.request.rejects(error)
+
+      try {
+        await uut.getPsfLiquidityPrice()
+        assert.fail('Should have thrown an error')
+      } catch (err) {
+        assert.equal(err.message, 'network down')
+      }
+    })
+  })
+
   describe('#getPsffppWritePrice()', () => {
     it('should handle errors properly', async () => {
       // Note: Full unit testing of getPsffppWritePrice is difficult due to dynamic imports
