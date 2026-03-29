@@ -43,6 +43,19 @@ const basicAuthDefaults = {
   token: process.env.BASIC_AUTH_TOKEN || ''
 }
 
+const psfLiquidityUrlEnv = process.env.PSF_LIQUIDITY_URL
+const psfLiquidityProxyBaseUrl =
+  psfLiquidityUrlEnv !== undefined &&
+  psfLiquidityUrlEnv !== null &&
+  String(psfLiquidityUrlEnv).trim() !== ''
+    ? String(psfLiquidityUrlEnv).trim().replace(/\/$/, '')
+    : 'http://192.168.0.126:5000'
+
+const psfLiquidityProxyDefaults = {
+  enabled: normalizeBoolean(process.env.PSF_LIQUIDITY_PROXY_ENABLED, false),
+  baseUrl: psfLiquidityProxyBaseUrl
+}
+
 export default {
   // Server port
   port: parseInt(process.env.PORT, 10) || 5942,
@@ -91,6 +104,8 @@ export default {
   x402: x402Defaults,
 
   basicAuth: basicAuthDefaults,
+
+  psfLiquidityProxy: psfLiquidityProxyDefaults,
 
   // Version
   version
