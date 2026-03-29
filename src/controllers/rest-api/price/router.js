@@ -44,6 +44,7 @@ class PriceRouter {
     this.router.get('/', this.priceController.root)
     this.router.get('/bchusd', this.priceController.getBCHUSD)
     this.router.get('/psffpp', this.priceController.getPsffppWritePrice)
+    this.router.get('/psf', this.priceController.getPsfLiquidityPrice)
 
     app.use(this.baseUrl, this.router)
   }
