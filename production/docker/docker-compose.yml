@@ -2,7 +2,9 @@
 
 services:
     psf-bch-api:
-      build: .
+      build:
+        context: ../..
+        dockerfile: production/docker/Dockerfile
       container_name: psf-bch-api
       logging:
         driver: 'json-file'
@@ -16,7 +18,7 @@ services:
         - '5942:5942' # <host port>:<container port>
       volumes:
         #- ./start-rest2nostr.sh:/home/safeuser/REST2NOSTR/start-rest2nostr.sh
-        - ./.env:/home/safeuser/.env
+        - ./.env:/home/safeuser/psf-bch-api/.env
         - ../data:/home/safeuser/psf-bch-api/production/data
         - ../data/logs:/home/safeuser/psf-bch-api/logs
       restart: always

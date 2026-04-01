@@ -187,6 +187,8 @@ FULCRUM_API=http://172.17.0.1:3001/v1
 SLP_INDEXER_API=http://172.17.0.1:5010
 ```
 
+Set `APIDOC_URL` to the public base URL for your deployment (for example `https://api.example.com` or your subdomain). The container entrypoint applies this value to `apidoc.json` and the `apidoc` section of `package.json`, then runs `npm run docs` before starting the server so generated HTML matches each instance. The compose file mounts `./.env` to `/home/safeuser/psf-bch-api/.env` so it matches `dotenv.config()` in the app.
+
 4. Build the Docker image:
 
 `docker-compose build --no-cache`
