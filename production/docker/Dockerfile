@@ -57,13 +57,15 @@ WORKDIR /home/safeuser/psf-bch-api-base
 RUN npm install
 #RUN npm install minimal-slp-wallet
 
-# Generate the API docs
-RUN npm run docs
+# Runtime entrypoint + apidoc URL patch (see production/docker/entrypoint.sh).
+# API docs are generated at container start so APIDOC_URL can be set per deployment.
+COPY production/docker/entrypoint.sh /home/safeuser/psf-bch-api/entrypoint.sh
+COPY scripts/patch-apidoc-from-env.js /home/safeuser/psf-bch-api/scripts/patch-apidoc-from-env.js
+RUN chmod +x /home/safeuser/psf-bch-api/entrypoint.sh
 
-COPY .env .env
+# Runtime `.env` is provided by docker-compose (mount at psf-bch-api/.env), not baked into the image.
 
-
-CMD ["npm", "start"]
+ENTRYPOINT ["/home/safeuser/psf-bch-api/entrypoint.sh"]
 
 # Used to debug the container.
 #COPY temp.js temp.js

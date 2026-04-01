@@ -6,6 +6,8 @@
   "scripts": {
     "start": "node bin/server.js",
     "docs": "./node_modules/.bin/apidoc -i src/ -o docs",
+    "docs:discovery": "node scripts/build-discovery-artifacts.js",
+    "docs:all": "npm run docs && npm run docs:discovery",
     "lint": "standard --env mocha --fix",
     "test": "npm run lint && TEST=unit c8 mocha 'test/unit/**/*.js' --exit",
     "test:integration": "mocha --timeout 25000 'test/integration/**/*.js' --exit",
