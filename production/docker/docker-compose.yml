@@ -1,9 +1,11 @@
 # Start the service with the command 'docker-compose up -d'
 
 services:
-    psf-bch-api-x402-base:
-      build: .
-      container_name: psf-bch-api-x402-base
+    psf-bch-api-base:
+      build:
+        context: ../..
+        dockerfile: production/docker/Dockerfile
+      container_name: psf-bch-api-base
       logging:
         driver: 'json-file'
         options:
@@ -16,7 +18,7 @@ services:
         - '6100:6100' # <host port>:<container port>
       volumes:
         #- ./start-rest2nostr.sh:/home/safeuser/REST2NOSTR/start-rest2nostr.sh
-        - ./.env:/home/safeuser/.env
+        - ./.env:/home/safeuser/psf-bch-api-base/.env
         - ../data:/home/safeuser/psf-bch-api-base/production/data
         - ../data/logs:/home/safeuser/psf-bch-api-base/logs
       restart: always

@@ -18,6 +18,7 @@ import Controllers from '../src/controllers/index.js'
 import wlogger from '../src/adapters/wlogger.js'
 import { buildX402Routes, getX402Settings, getBasicAuthSettings, createAuthHeader } from '../src/config/x402.js'
 import { basicAuthMiddleware } from '../src/middleware/basic-auth.js'
+import DiscoveryRouter from '../src/controllers/discovery/router.js'
 
 // Load environment variables
 dotenv.config()
@@ -228,6 +229,8 @@ class Server {
 
       // Attach REST API controllers to the app.
       this.controllers.attachRESTControllers(app)
+      const discoveryRouter = new DiscoveryRouter()
+      discoveryRouter.attach(app)
 
       // Initialize any other controller libraries.
       this.controllers.initControllers()
