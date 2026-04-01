@@ -5,6 +5,25 @@ const DEFAULT_DESCRIPTION = 'Access to protected psf-bch-api resources'
 const DEFAULT_TIMEOUT_SECONDS = 120
 
 /**
+ * Facilitator configurations
+ * Supports multiple facilitators for redundancy and market coverage
+ */
+const FACILITATORS = {
+  cdp: {
+    name: 'Coinbase CDP',
+    url: 'https://api.cdp.coinbase.com/platform/v2/x402',
+    requiresAuth: true,
+    authType: 'jwt'
+  },
+  dexter: {
+    name: 'Dexter',
+    url: 'https://dexter.cash/facilitator',
+    requiresAuth: false,
+    authType: 'none'
+  }
+}
+
+/**
  * Builds a route configuration map for x402-bch middleware.
  *
  * @param {string} apiPrefix Express API prefix (e.g., "/v6")
@@ -48,11 +67,14 @@ export function buildX402Routes (apiPrefix = '/v6') {
 export function getX402Settings () {
   return {
     enabled: Boolean(config.x402?.enabled),
-    facilitatorUrl: config.x402?.facilitatorUrl, //  https://docs.cdp.coinbase.com/x402/quickstart-for-sellers
+    facilitatorUrl: config.x402?.facilitatorUrl,
     facilitatorKeyId: config.x402?.facilitatorKeyId,
     facilitatorSecretKey: config.x402?.facilitatorSecretKey,
     serverAddress: config.x402?.serverAddress,
-    priceUSDC: config.x402?.priceUSDC
+    priceUSDC: config.x402?.priceUSDC,
+    // Support for multiple facilitators
+    facilitators: FACILITATORS,
+    primaryFacilitator: config.x402?.primaryFacilitator || 'cdp'
   }
 }
 
@@ -64,25 +86,27 @@ export function getBasicAuthSettings () {
 }
 
 /**
- *
- * Auth headers for interact with mainnet coin base facilitator endpoints.
- *
+ * Create auth headers for CDP facilitator
+ * Dexter doesn't require auth
  */
-// https://docs.cdp.coinbase.com/get-started/authentication/jwt-authentication#javascript-2
-// https://docs.cdp.coinbase.com/api-reference/v2/rest-api/x402-facilitator/verify-a-payment
 export async function createAuthHeader () {
+  // Only CDP requires JWT auth
+  if (!config.x402?.facilitatorKeyId || !config.x402?.facilitatorSecretKey) {
+    return null
+  }
+
   // /verify endpoint jwt
   const verifyToken = await generateJwt({
-    apiKeyId: config.x402?.facilitatorKeyId,
-    apiKeySecret: config.x402?.facilitatorSecretKey,
+    apiKeyId: config.x402.facilitatorKeyId,
+    apiKeySecret: config.x402.facilitatorSecretKey,
     requestMethod: 'POST',
     requestHost: 'api.cdp.coinbase.com',
     requestPath: '/platform/v2/x402/verify'
   })
   // /settle endpoint jwt
   const settleToken = await generateJwt({
-    apiKeyId: config.x402?.facilitatorKeyId,
-    apiKeySecret: config.x402?.facilitatorSecretKey,
+    apiKeyId: config.x402.facilitatorKeyId,
+    apiKeySecret: config.x402.facilitatorSecretKey,
     requestMethod: 'POST',
     requestHost: 'api.cdp.coinbase.com',
     requestPath: '/platform/v2/x402/settle'
@@ -96,4 +120,23 @@ export async function createAuthHeader () {
       Authorization: `Bearer ${settleToken}`
     }
   }
+}
+
+/**
+ * Get facilitator configuration by name
+ * @param {string} name - Facilitator name ('cdp' or 'dexter')
+ * @returns {Object} Facilitator config
+ */
+export function getFacilitatorConfig (name = 'cdp') {
+  return FACILITATORS[name] || FACILITATORS.cdp
+}
+
+/**
+ * Check if facilitator requires authentication
+ * @param {string} name - Facilitator name
+ * @returns {boolean}
+ */
+export function facilitatorRequiresAuth (name = 'cdp') {
+  const config = FACILITATORS[name]
+  return config ? config.requiresAuth : false
 }

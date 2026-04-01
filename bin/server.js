@@ -16,7 +16,7 @@ import { dirname, join } from 'path'
 import config from '../src/config/index.js'
 import Controllers from '../src/controllers/index.js'
 import wlogger from '../src/adapters/wlogger.js'
-import { buildX402Routes, getX402Settings, getBasicAuthSettings, createAuthHeader } from '../src/config/x402.js'
+import { buildX402Routes, getX402Settings, getBasicAuthSettings, createAuthHeader, getFacilitatorConfig } from '../src/config/x402.js'
 import { basicAuthMiddleware } from '../src/middleware/basic-auth.js'
 import DiscoveryRouter from '../src/controllers/discovery/router.js'
 
@@ -110,14 +110,17 @@ class Server {
         const routes = buildX402Routes(this.config.apiPrefix)
         let facilitatorOptions = x402Settings.facilitatorUrl
 
-        if (facilitatorOptions) {
-          facilitatorOptions = {
-            url: x402Settings.facilitatorUrl,
-            createAuthHeaders: createAuthHeader
-          }
+        // Support for multiple facilitators (CDP and Dexter)
+        const primaryFacilitator = x402Settings.primaryFacilitator || 'cdp'
+        const facilitatorConfig = getFacilitatorConfig(primaryFacilitator)
+
+        // Use configured facilitator URL
+        facilitatorOptions = {
+          url: facilitatorConfig.url,
+          createAuthHeaders: facilitatorConfig.requiresAuth ? createAuthHeader : null
         }
 
-        wlogger.info(`x402 middleware enabled with basic auth bypass; enforcing ${x402Settings.priceUSDC} satoshis per request (unless basic auth provided)`)
+        wlogger.info(`x402 middleware enabled with basic auth bypass; enforcing ${x402Settings.priceUSDC} USDC per request (unless basic auth provided) [facilitator: ${facilitatorConfig.name}]`)
 
         // Create conditional x402 middleware that bypasses if basic auth is valid
         const conditionalX402Middleware = (req, res, next) => {
