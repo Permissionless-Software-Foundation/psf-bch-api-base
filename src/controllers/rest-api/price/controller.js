@@ -26,6 +26,7 @@ class PriceRESTController {
     this.root = this.root.bind(this)
     this.getBCHUSD = this.getBCHUSD.bind(this)
     this.getPsffppWritePrice = this.getPsffppWritePrice.bind(this)
+    this.getPsfLiquidityPrice = this.getPsfLiquidityPrice.bind(this)
     this.handleError = this.handleError.bind(this)
   }
 
@@ -78,6 +79,30 @@ class PriceRESTController {
     try {
       const writePrice = await this.priceUseCases.getPsffppWritePrice()
       return res.status(200).json({ writePrice })
+    } catch (err) {
+      return this.handleError(err, res)
+    }
+  }
+
+  /**
+   * @api {get} /v6/price/psf PSF token liquidity spot price (proxied)
+   * @apiName GetPsfLiquidityPrice
+   * @apiGroup Price
+   * @apiDescription Proxies GET /price from the PSF token liquidity app when
+   * `PSF_LIQUIDITY_PROXY_ENABLED` is true. Returns 503 when the proxy is disabled.
+   *
+   * @apiExample Example usage:
+   * curl -X GET "https://api.fullstack.cash/v6/price/psf" -H "accept: application/json"
+   *
+   * @apiSuccess {Number} usdPerBCH USD price per 1 BCH
+   * @apiSuccess {Number} bchBalance BCH balance (liquidity app)
+   * @apiSuccess {Number} tokenBalance Effective PSF token balance
+   * @apiSuccess {Number} usdPerToken USD price per 1 PSF token
+   */
+  async getPsfLiquidityPrice (req, res) {
+    try {
+      const payload = await this.priceUseCases.getPsfLiquidityPrice()
+      return res.status(200).json(payload)
     } catch (err) {
       return this.handleError(err, res)
     }

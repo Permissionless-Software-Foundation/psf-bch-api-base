@@ -28,6 +28,13 @@ class PriceUseCases {
 
     // Allow axios to be injected for testing
     this.axios = localConfig.axios || axios
+
+    this.psfLiquidityPriceKeys = [
+      'usdPerBCH',
+      'bchBalance',
+      'tokenBalance',
+      'usdPerToken'
+    ]
   }
 
   /**
@@ -75,6 +82,56 @@ class PriceUseCases {
       return writePrice
     } catch (err) {
       wlogger.error('Error in PriceUseCases.getPsffppWritePrice()', err)
+      throw err
+    }
+  }
+
+  /**
+   * Proxies PSF token liquidity spot price from the token-liquidity app (GET /price).
+   * @returns {Promise<Object>} usdPerBCH, bchBalance, tokenBalance, usdPerToken
+   */
+  async getPsfLiquidityPrice () {
+    try {
+      const proxy = this.config.psfLiquidityProxy
+      if (!proxy || !proxy.enabled) {
+        const err = new Error('PSF liquidity price proxy is disabled')
+        err.status = 503
+        throw err
+      }
+
+      const baseUrl = String(proxy.baseUrl).replace(/\/$/, '')
+      const fullUrl = `${baseUrl}/price`
+
+      const opt = {
+        method: 'get',
+        url: fullUrl,
+        timeout: 15000
+      }
+
+      const response = await this.axios.request(opt)
+      const data = response.data
+
+      if (
+        !data ||
+        typeof data !== 'object' ||
+        Array.isArray(data) ||
+        !this.psfLiquidityPriceKeys.every(
+          (k) => typeof data[k] === 'number' && !Number.isNaN(data[k])
+        )
+      ) {
+        const err = new Error('Invalid response from PSF liquidity price service')
+        err.status = 502
+        throw err
+      }
+
+      return {
+        usdPerBCH: data.usdPerBCH,
+        bchBalance: data.bchBalance,
+        tokenBalance: data.tokenBalance,
+        usdPerToken: data.usdPerToken
+      }
+    } catch (err) {
+      wlogger.error('Error in PriceUseCases.getPsfLiquidityPrice()', err)
       throw err
     }
   }

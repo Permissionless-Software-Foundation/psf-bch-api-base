@@ -20,7 +20,13 @@ describe('#price-controller.js', () => {
     mockUseCases = {
       price: {
         getBCHUSD: sandbox.stub().resolves(250.5),
-        getPsffppWritePrice: sandbox.stub().resolves(0.08335233)
+        getPsffppWritePrice: sandbox.stub().resolves(0.08335233),
+        getPsfLiquidityPrice: sandbox.stub().resolves({
+          usdPerBCH: 483.1,
+          bchBalance: 25.65337297,
+          tokenBalance: 39590.96686314,
+          usdPerToken: 0.50532753
+        })
       }
     }
 
@@ -111,6 +117,37 @@ describe('#price-controller.js', () => {
 
       assert.equal(res.statusValue, 500)
       assert.deepEqual(res.jsonData, { error: 'PSFFPP failure' })
+    })
+  })
+
+  describe('#getPsfLiquidityPrice()', () => {
+    it('should return PSF liquidity price payload on success', async () => {
+      const req = createMockRequest()
+      const res = createMockResponse()
+
+      await uut.getPsfLiquidityPrice(req, res)
+
+      assert.equal(res.statusValue, 200)
+      assert.deepEqual(res.jsonData, {
+        usdPerBCH: 483.1,
+        bchBalance: 25.65337297,
+        tokenBalance: 39590.96686314,
+        usdPerToken: 0.50532753
+      })
+      assert.isTrue(mockUseCases.price.getPsfLiquidityPrice.calledOnce)
+    })
+
+    it('should handle errors via handleError', async () => {
+      const error = new Error('proxy off')
+      error.status = 503
+      mockUseCases.price.getPsfLiquidityPrice.rejects(error)
+      const req = createMockRequest()
+      const res = createMockResponse()
+
+      await uut.getPsfLiquidityPrice(req, res)
+
+      assert.equal(res.statusValue, 503)
+      assert.deepEqual(res.jsonData, { error: 'proxy off' })
     })
   })
 })
