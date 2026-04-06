@@ -15,7 +15,7 @@ import { x402Client, wrapAxiosWithPayment } from '@x402/axios'
 import { registerExactEvmScheme } from '@x402/evm/exact/client'
 import { toClientEvmSigner } from '@x402/evm'
 
-const baseURL = 'https://localhost:5942' // Local
+const baseURL = 'http://localhost:5942' // Local
 // const baseURL = 'https://x402.fullstack.cash' // Production
 
 const endpointPath = '/v6/full-node/blockchain/getBlockchainInfo'
