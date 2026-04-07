@@ -7,7 +7,9 @@
 import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
-import { paymentMiddleware as x402PaymentMiddleware } from 'x402-express'
+import { paymentMiddleware as x402PaymentMiddleware } from '@x402/express'
+import { HTTPFacilitatorClient, x402ResourceServer } from '@x402/core/server'
+import { registerExactEvmScheme } from '@x402/evm/exact/server'
 
 import { fileURLToPath } from 'url'
 import { dirname, join } from 'path'
@@ -74,7 +76,22 @@ class Server {
         origin: true, // Allow all origins (more reliable than '*')
         credentials: false, // Set to true if you need to support credentials
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-        allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+        allowedHeaders: [
+          'Content-Type',
+          'Authorization',
+          'X-Requested-With',
+          'PAYMENT-SIGNATURE',
+          'PAYMENT-REQUIRED',
+          'PAYMENT-RESPONSE',
+          'X-PAYMENT',
+          'X-PAYMENT-RESPONSE'
+        ],
+        exposedHeaders: [
+          'PAYMENT-REQUIRED',
+          'PAYMENT-RESPONSE',
+          'PAYMENT-SIGNATURE',
+          'X-PAYMENT-RESPONSE'
+        ]
       }))
 
       // URL normalization middleware - collapse multiple slashes
@@ -108,54 +125,46 @@ class Server {
       if (x402Settings.enabled && basicAuthSettings.enabled) {
         // X402_ENABLED=true AND USE_BASIC_AUTH=true: Apply x402 conditionally
         const routes = buildX402Routes(this.config.apiPrefix)
-        let facilitatorOptions = x402Settings.facilitatorUrl
+        const facilitatorOptions = x402Settings.facilitatorUrl
+          ? {
+              url: x402Settings.facilitatorUrl,
+              createAuthHeaders: createAuthHeader
+            }
+          : undefined
 
-        if (facilitatorOptions) {
-          facilitatorOptions = {
-            url: x402Settings.facilitatorUrl,
-            createAuthHeaders: createAuthHeader
-          }
-        }
+        wlogger.info(`x402 v2 middleware enabled with basic auth bypass; enforcing ${x402Settings.priceUSDC} USDC per request (unless basic auth provided)`)
 
-        wlogger.info(`x402 middleware enabled with basic auth bypass; enforcing ${x402Settings.priceUSDC} satoshis per request (unless basic auth provided)`)
+        const facilitatorClient = new HTTPFacilitatorClient(facilitatorOptions)
+        // x402 v2 exports use lowercase class names (x402ResourceServer).
+        // eslint-disable-next-line new-cap
+        const resourceServer = new x402ResourceServer(facilitatorClient)
+        registerExactEvmScheme(resourceServer, {})
+        const x402Mw = x402PaymentMiddleware(routes, resourceServer)
 
-        // Create conditional x402 middleware that bypasses if basic auth is valid
         const conditionalX402Middleware = (req, res, next) => {
-          // req.headers['accept'] = 'application/json';
-          // If basic auth is valid, bypass x402
           if (req.locals?.basicAuthValid === true) {
             return next()
           }
-
-          // Otherwise, apply x402 middleware
-          return x402PaymentMiddleware(
-            x402Settings.serverAddress,
-            routes,
-            facilitatorOptions
-          )(req, res, next)
+          return x402Mw(req, res, next)
         }
 
         app.use(conditionalX402Middleware)
       } else if (x402Settings.enabled && !basicAuthSettings.enabled) {
-        // X402_ENABLED=true AND USE_BASIC_AUTH=false: Apply x402 unconditionally (no basic auth bypass)
         const routes = buildX402Routes(this.config.apiPrefix)
-        let facilitatorOptions = x402Settings.facilitatorUrl
+        const facilitatorOptions = x402Settings.facilitatorUrl
+          ? {
+              url: x402Settings.facilitatorUrl,
+              createAuthHeaders: createAuthHeader
+            }
+          : undefined
 
-        if (facilitatorOptions) {
-          facilitatorOptions = {
-            url: x402Settings.facilitatorUrl,
-            createAuthHeaders: createAuthHeader
-          }
-        }
+        wlogger.info(`x402 v2 middleware enabled (basic auth disabled); enforcing ${x402Settings.priceUSDC} USDC per request`)
 
-        wlogger.info(`x402 middleware enabled (basic auth disabled); enforcing ${x402Settings.priceUSDC} satoshis per request`)
-
-        // Apply x402 middleware unconditionally - no basic auth bypass
-        app.use(x402PaymentMiddleware(
-          x402Settings.serverAddress,
-          routes,
-          facilitatorOptions
-        ))
+        const facilitatorClient = new HTTPFacilitatorClient(facilitatorOptions)
+        // eslint-disable-next-line new-cap
+        const resourceServer = new x402ResourceServer(facilitatorClient)
+        registerExactEvmScheme(resourceServer, {})
+        app.use(x402PaymentMiddleware(routes, resourceServer))
       } else if (basicAuthSettings.enabled && !x402Settings.enabled) {
         // USE_BASIC_AUTH=true AND X402_ENABLED=false: Require basic auth, reject unauthenticated requests
         wlogger.info('Basic auth enforcement enabled (x402 disabled)')
