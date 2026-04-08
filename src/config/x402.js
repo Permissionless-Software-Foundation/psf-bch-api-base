@@ -17,7 +17,7 @@ const FACILITATORS = {
   },
   dexter: {
     name: 'Dexter',
-    url: 'https://dexter.cash/facilitator',
+    url: 'https://x402.dexter.cash',
     requiresAuth: false,
     authType: 'none'
   }

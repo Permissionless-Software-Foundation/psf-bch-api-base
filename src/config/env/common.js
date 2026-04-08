@@ -43,6 +43,7 @@ const x402Defaults = {
   serverAddress: process.env.SERVER_BASE_ADDRESS || 'bitcoincash:qqsrke9lh257tqen99dkyy2emh4uty0vky9y0z0lsr',
   facilitatorKeyId: process.env.FACILITATOR_KEY_ID || '',
   facilitatorSecretKey: process.env.FACILITATOR_SECRET_KEY || '',
+  primaryFacilitator: process.env.PRIMARY_FACILITATOR || 'cdp',
   // CDP requires CAIP-2 network format: eip155:8453 (base) or eip155:84532 (base-sepolia)
   network: x402Network,
   priceUSDC
