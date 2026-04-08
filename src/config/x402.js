@@ -23,11 +23,20 @@ const FACILITATORS = {
   }
 }
 
+/** x402 `exact` on EVM expects a checksummable 0x address for `payTo`. */
+function assertEvmPayTo (payTo) {
+  if (typeof payTo !== 'string' || !/^0x[a-fA-F0-9]{40}$/.test(payTo)) {
+    throw new Error(
+      'SERVER_BASE_ADDRESS must be a 0x-prefixed 40-hex EVM address (Base USDC settlement).'
+    )
+  }
+}
+
 /**
- * Builds a route configuration map for x402-bch middleware.
- *
+ * Builds x402 v2 RoutesConfig for @x402/express (CAIP-2 network + accepts[]).
+ * Payment asset is explicitly USDC (ERC-20) via AssetAmount, not generic "money".
+ * @see https://docs.x402.org/guides/migration-v1-to-v2
  * @param {string} apiPrefix Express API prefix (e.g., "/v6")
- * @returns {Object} Routes configuration compatible with x402-bch-express
  */
 export function buildX402Routes (apiPrefix = '/v6') {
   const normalizedPrefix = apiPrefix.endsWith('/')
@@ -37,29 +46,27 @@ export function buildX402Routes (apiPrefix = '/v6') {
     ? normalizedPrefix
     : `/${normalizedPrefix}`
 
-  const routeKey = `${prefixWithSlash}/*`
+  const routeKey = `* ${prefixWithSlash}/*`
+  const network = config.x402.network
+  if (!network) throw new Error('x402 network is required (set x402_NETWORK / X402_NETWORK).')
 
-  // Get network from config (now supports CAIP-2 format: eip155:8453)
-  const NETWORK = config.x402.network
-  if (!NETWORK) throw new Error('x402_NETWORK env required!')
+  const payTo = config.x402.serverAddress
+  if (!payTo) throw new Error('SERVER_BASE_ADDRESS is required for x402 v2 payTo.')
+  assertEvmPayTo(payTo)
 
   return {
-    network: NETWORK,
     [routeKey]: {
-      price: config.x402.priceUSDC,
-      network: NETWORK,
-      config: {
-        description: `${DEFAULT_DESCRIPTION} (${config.x402.priceUSDC} USDC)`,
-        maxTimeoutSeconds: DEFAULT_TIMEOUT_SECONDS,
-        mimeType: 'application/json',
-        outputSchema: {
-          input: {
-            type: 'http',
-            method: 'GET',
-            discoverable: true
-          }
+      accepts: [
+        {
+          scheme: 'exact',
+          payTo,
+          price: config.x402.priceUSDC,
+          network,
+          maxTimeoutSeconds: DEFAULT_TIMEOUT_SECONDS
         }
-      }
+      ],
+      description: `${DEFAULT_DESCRIPTION} (${config.x402.priceUSDC} USDC)`,
+      mimeType: 'application/json'
     }
   }
 }
@@ -72,9 +79,79 @@ export function getX402Settings () {
     facilitatorSecretKey: config.x402?.facilitatorSecretKey,
     serverAddress: config.x402?.serverAddress,
     priceUSDC: config.x402?.priceUSDC,
-    // Support for multiple facilitators
+    usdcAssetAddress: config.x402?.usdcAssetAddress,
+    network: config.x402?.network,
     facilitators: FACILITATORS,
     primaryFacilitator: config.x402?.primaryFacilitator || 'cdp'
+  }
+}
+
+/**
+ * JSON for `GET /.well-known/x402` — matches `buildX402Routes` (Base USDC, exact scheme).
+ * @param {string} [apiPrefix]
+ */
+export function getX402WellKnownManifest (apiPrefix = '/v6') {
+  const normalizedPrefix = apiPrefix.endsWith('/')
+    ? apiPrefix.slice(0, -1)
+    : apiPrefix
+  const prefixWithSlash = normalizedPrefix.startsWith('/')
+    ? normalizedPrefix
+    : `/${normalizedPrefix}`
+
+  const network = config.x402.network
+  if (!network) throw new Error('x402 network is required (set x402_NETWORK / X402_NETWORK).')
+
+  const payTo = config.x402.serverAddress
+  if (!payTo) throw new Error('SERVER_BASE_ADDRESS is required for x402 v2 payTo.')
+  assertEvmPayTo(payTo)
+
+  return {
+    x402Version: 2,
+    network,
+    facilitator: {
+      url: config.x402.facilitatorUrl
+    },
+    resources: [
+      {
+        resource: `${prefixWithSlash}/*`,
+        type: 'http',
+        x402Version: 2,
+        accepts: [
+          {
+            scheme: 'exact',
+            network,
+            price: config.x402.priceUSDC,
+            payTo,
+            maxTimeoutSeconds: DEFAULT_TIMEOUT_SECONDS,
+            description: `${DEFAULT_DESCRIPTION} (${config.x402.priceUSDC} USDC)`,
+            mimeType: 'application/json',
+            extra: { }
+          }
+        ]
+      }
+    ]
+  }
+}
+
+/**
+ * Snapshot for `build-documents` agent manifest — Base USDC / exact scheme.
+ * @returns {object|null} null when x402 is off or payTo/network invalid.
+ */
+export function getX402AgentAuthPricing () {
+  const x402 = config.x402
+  if (!x402?.enabled || !x402.serverAddress || !x402.network) return null
+  try {
+    assertEvmPayTo(x402.serverAddress)
+  } catch {
+    return null
+  }
+  return {
+    scheme: 'exact',
+    x402Version: 2,
+    network: x402.network,
+    payTo: x402.serverAddress,
+    priceUSDC: x402.priceUSDC,
+    facilitatorUrl: x402.facilitatorUrl
   }
 }
 
@@ -86,30 +163,40 @@ export function getBasicAuthSettings () {
 }
 
 /**
- * Create auth headers for CDP facilitator
- * Dexter doesn't require auth
+ * CDP JWT auth for facilitator HTTPFacilitatorClient (verify / settle / supported).
+ * @see https://docs.cdp.coinbase.com/get-started/authentication/jwt-authentication#javascript-2
  */
 export async function createAuthHeader () {
-  // Only CDP requires JWT auth
-  if (!config.x402?.facilitatorKeyId || !config.x402?.facilitatorSecretKey) {
-    return null
+  const id = config.x402?.facilitatorKeyId
+  const secret = config.x402?.facilitatorSecretKey
+  if (!id || !secret) {
+    return {
+      verify: {},
+      settle: {},
+      supported: {}
+    }
   }
 
-  // /verify endpoint jwt
   const verifyToken = await generateJwt({
-    apiKeyId: config.x402.facilitatorKeyId,
-    apiKeySecret: config.x402.facilitatorSecretKey,
+    apiKeyId: id,
+    apiKeySecret: secret,
     requestMethod: 'POST',
     requestHost: 'api.cdp.coinbase.com',
     requestPath: '/platform/v2/x402/verify'
   })
-  // /settle endpoint jwt
   const settleToken = await generateJwt({
-    apiKeyId: config.x402.facilitatorKeyId,
-    apiKeySecret: config.x402.facilitatorSecretKey,
+    apiKeyId: id,
+    apiKeySecret: secret,
     requestMethod: 'POST',
     requestHost: 'api.cdp.coinbase.com',
     requestPath: '/platform/v2/x402/settle'
+  })
+  const supportedToken = await generateJwt({
+    apiKeyId: id,
+    apiKeySecret: secret,
+    requestMethod: 'GET',
+    requestHost: 'api.cdp.coinbase.com',
+    requestPath: '/platform/v2/x402/supported'
   })
 
   return {
@@ -118,6 +205,9 @@ export async function createAuthHeader () {
     },
     settle: {
       Authorization: `Bearer ${settleToken}`
+    },
+    supported: {
+      Authorization: `Bearer ${supportedToken}`
     }
   }
 }
@@ -137,6 +227,6 @@ export function getFacilitatorConfig (name = 'cdp') {
  * @returns {boolean}
  */
 export function facilitatorRequiresAuth (name = 'cdp') {
-  const config = FACILITATORS[name]
-  return config ? config.requiresAuth : false
+  const cfg = FACILITATORS[name]
+  return cfg ? cfg.requiresAuth : false
 }

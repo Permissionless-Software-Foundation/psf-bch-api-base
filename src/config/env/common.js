@@ -26,27 +26,42 @@ const normalizeBoolean = (value, defaultValue) => {
   return defaultValue
 }
 
-// By default, the price per API call is 200 satoshis.
-// But the user can override this value by setting the X402_PRICE_SAT environment variable.
+// Default price per API call in USDC (x402 on Base). Override with X402_PRICE_USDC.
 const parsedPrice = Number(process.env.X402_PRICE_USDC)
 const priceUSDC = Number.isFinite(parsedPrice) && parsedPrice > 0 ? parsedPrice : 200
 
-// Network configuration: CDP requires CAIP-2 format (eip155:chainId)
-// base-sepolia = eip155:84532, base-mainnet = eip155:8453
-const x402Network = process.env.x402_NETWORK || 'eip155:8453'
+// x402 v2 uses CAIP-2 network ids (see https://docs.x402.org/guides/migration-v1-to-v2).
+// Accept legacy short names from env for convenience. Also accept X402_NETWORK or x402_NETWORK.
+function toV2Caip2Network (raw) {
+  const s = String(raw ?? '').trim()
+  if (!s) return 'eip155:8453'
+  const lower = s.toLowerCase()
+  if (lower === 'base' || lower === 'eip155:8453') return 'eip155:8453'
+  if (lower === 'base-sepolia' || lower === 'eip155:84532') return 'eip155:84532'
+  if (lower.startsWith('eip155:')) return s
+  return s
+}
+
+const x402NetworkRaw =
+  process.env.x402_NETWORK ||
+  process.env.X402_NETWORK ||
+  'eip155:8453'
+const x402Network = toV2Caip2Network(x402NetworkRaw)
 
 const x402Defaults = {
   enabled: normalizeBoolean(process.env.X402_ENABLED, true),
   // CDP Facilitator: https://api.cdp.coinbase.com/platform/v2/x402
   // Custom/Local Facilitator: http://localhost:4022
   facilitatorUrl: process.env.x402_FACILITATOR_URL || 'https://api.cdp.coinbase.com/platform/v2/x402',
-  serverAddress: process.env.SERVER_BASE_ADDRESS || 'bitcoincash:qqsrke9lh257tqen99dkyy2emh4uty0vky9y0z0lsr',
+  // EVM 0x… address for USDC settlement; required for x402 exact scheme (no legacy BCH default).
+  serverAddress: (process.env.SERVER_BASE_ADDRESS || '').trim(),
   facilitatorKeyId: process.env.FACILITATOR_KEY_ID || '',
   facilitatorSecretKey: process.env.FACILITATOR_SECRET_KEY || '',
   primaryFacilitator: process.env.PRIMARY_FACILITATOR || 'cdp',
-  // CDP requires CAIP-2 network format: eip155:8453 (base) or eip155:84532 (base-sepolia)
   network: x402Network,
-  priceUSDC
+  priceUSDC,
+  // Optional: USDC token contract (0x…). If unset, Base / Base Sepolia use built-in USDC addresses.
+  usdcAssetAddress: (process.env.X402_USDC_ASSET || '').trim()
 }
 
 const basicAuthDefaults = {
