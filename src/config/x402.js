@@ -5,9 +5,23 @@ const DEFAULT_DESCRIPTION = 'Access to protected psf-bch-api resources'
 const DEFAULT_TIMEOUT_SECONDS = 120
 
 /**
- * Resolve USDC contract + EIP-712 domain hints for the configured network.
- * @param {string} network CAIP-2
+ * Facilitator configurations
+ * Supports multiple facilitators for redundancy and market coverage
  */
+const FACILITATORS = {
+  cdp: {
+    name: 'Coinbase CDP',
+    url: 'https://api.cdp.coinbase.com/platform/v2/x402',
+    requiresAuth: true,
+    authType: 'jwt'
+  },
+  dexter: {
+    name: 'Dexter',
+    url: 'https://x402.dexter.cash',
+    requiresAuth: false,
+    authType: 'none'
+  }
+}
 
 /** x402 `exact` on EVM expects a checksummable 0x address for `payTo`. */
 function assertEvmPayTo (payTo) {
@@ -22,6 +36,7 @@ function assertEvmPayTo (payTo) {
  * Builds x402 v2 RoutesConfig for @x402/express (CAIP-2 network + accepts[]).
  * Payment asset is explicitly USDC (ERC-20) via AssetAmount, not generic "money".
  * @see https://docs.x402.org/guides/migration-v1-to-v2
+ * @param {string} apiPrefix Express API prefix (e.g., "/v6")
  */
 export function buildX402Routes (apiPrefix = '/v6') {
   const normalizedPrefix = apiPrefix.endsWith('/')
@@ -65,7 +80,9 @@ export function getX402Settings () {
     serverAddress: config.x402?.serverAddress,
     priceUSDC: config.x402?.priceUSDC,
     usdcAssetAddress: config.x402?.usdcAssetAddress,
-    network: config.x402?.network
+    network: config.x402?.network,
+    facilitators: FACILITATORS,
+    primaryFacilitator: config.x402?.primaryFacilitator || 'cdp'
   }
 }
 
@@ -193,4 +210,23 @@ export async function createAuthHeader () {
       Authorization: `Bearer ${supportedToken}`
     }
   }
+}
+
+/**
+ * Get facilitator configuration by name
+ * @param {string} name - Facilitator name ('cdp' or 'dexter')
+ * @returns {Object} Facilitator config
+ */
+export function getFacilitatorConfig (name = 'cdp') {
+  return FACILITATORS[name] || FACILITATORS.cdp
+}
+
+/**
+ * Check if facilitator requires authentication
+ * @param {string} name - Facilitator name
+ * @returns {boolean}
+ */
+export function facilitatorRequiresAuth (name = 'cdp') {
+  const cfg = FACILITATORS[name]
+  return cfg ? cfg.requiresAuth : false
 }

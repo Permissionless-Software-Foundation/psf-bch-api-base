@@ -57,6 +57,7 @@ const x402Defaults = {
   serverAddress: (process.env.SERVER_BASE_ADDRESS || '').trim(),
   facilitatorKeyId: process.env.FACILITATOR_KEY_ID || '',
   facilitatorSecretKey: process.env.FACILITATOR_SECRET_KEY || '',
+  primaryFacilitator: process.env.PRIMARY_FACILITATOR || 'cdp',
   network: x402Network,
   priceUSDC,
   // Optional: USDC token contract (0x…). If unset, Base / Base Sepolia use built-in USDC addresses.
