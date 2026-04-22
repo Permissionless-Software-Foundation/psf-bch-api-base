@@ -1,6 +1,23 @@
 import { HTTPFacilitatorClient } from '@x402/core/server'
 import { RoundRobinFacilitatorClient } from './round-robin-facilitator-client.js'
 
+function withSettleLogging (entry) {
+  return {
+    async getSupported () {
+      return entry.client.getSupported()
+    },
+    async verify (paymentPayload, paymentRequirements) {
+      return entry.client.verify(paymentPayload, paymentRequirements)
+    },
+    async settle (paymentPayload, paymentRequirements) {
+      const result = await entry.client.settle(paymentPayload, paymentRequirements)
+      const tx = result?.transaction || 'n/a'
+      console.log(`[x402] payment settled via ${entry.name || entry.key || 'facilitator'} (${entry.url || 'no-url'}) tx=${tx}`)
+      return result
+    }
+  }
+}
+
 export function createFacilitatorClient (connectionOpts = [], createAuthHeaders, ClientClass = HTTPFacilitatorClient) {
   const entries = connectionOpts.map(o => ({
     key: o.key,
@@ -18,7 +35,7 @@ export function createFacilitatorClient (connectionOpts = [], createAuthHeaders,
 
   if (entries.length === 1) {
     return {
-      client: entries[0].client,
+      client: withSettleLogging(entries[0]),
       strategy: 'single'
     }
   }

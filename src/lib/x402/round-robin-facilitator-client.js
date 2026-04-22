@@ -82,6 +82,8 @@ export class RoundRobinFacilitatorClient {
       try {
         const result = await entry.client.settle(paymentPayload, paymentRequirements)
         this.cursorByKey.set(key, (idx + 1) % length)
+        const tx = result?.transaction || 'n/a'
+        console.log(`[x402] payment settled via ${entry.name || entry.key || `facilitator-${idx}`} (${entry.url || 'no-url'}) tx=${tx}`)
         return result
       } catch (err) {
         attempts.push({

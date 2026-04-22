@@ -17,8 +17,9 @@ describe('#facilitator-client-factory', () => {
     const result = createFacilitatorClient(connectionOpts, async () => ({}), FakeFacilitatorClient)
 
     assert.equal(result.strategy, 'single')
-    assert.instanceOf(result.client, FakeFacilitatorClient)
-    assert.equal(result.client.opts.url, 'https://cdp.example.com')
+    assert.isFunction(result.client.verify)
+    assert.isFunction(result.client.settle)
+    assert.isFunction(result.client.getSupported)
   })
 
   it('returns round-robin strategy when multiple facilitators are configured', () => {
