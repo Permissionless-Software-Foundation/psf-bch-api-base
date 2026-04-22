@@ -8,7 +8,7 @@ import express from 'express'
 import cors from 'cors'
 import dotenv from 'dotenv'
 import { paymentMiddleware as x402PaymentMiddleware } from '@x402/express'
-import { HTTPFacilitatorClient, x402ResourceServer } from '@x402/core/server'
+import { x402ResourceServer } from '@x402/core/server'
 import { registerExactEvmScheme } from '@x402/evm/exact/server'
 
 import { fileURLToPath } from 'url'
@@ -21,6 +21,7 @@ import wlogger from '../src/adapters/wlogger.js'
 import { buildX402Routes, getX402Settings, getBasicAuthSettings, createAuthHeader, getFacilitatorConnectionOptions } from '../src/config/x402.js'
 import { basicAuthMiddleware } from '../src/middleware/basic-auth.js'
 import DiscoveryRouter from '../src/controllers/discovery/router.js'
+import { createFacilitatorClient } from '../src/lib/x402/facilitator-client-factory.js'
 
 // Load environment variables
 dotenv.config()
@@ -127,16 +128,13 @@ class Server {
         const routes = buildX402Routes(this.config.apiPrefix)
 
         const connectionOpts = getFacilitatorConnectionOptions()
-        const facilitatorClients = connectionOpts.map(o => new HTTPFacilitatorClient({
-          url: o.url,
-          createAuthHeaders: o.requiresAuth ? createAuthHeader : null
-        }))
+        const facilitator = createFacilitatorClient(connectionOpts, createAuthHeader)
 
-        wlogger.info(`x402 v2 middleware enabled with basic auth bypass; enforcing ${x402Settings.priceUSDC} USDC per request (unless basic auth provided) [facilitators: ${connectionOpts.map(o => o.name).join(', ')}]`)
+        wlogger.info(`x402 v2 middleware enabled with basic auth bypass; enforcing ${x402Settings.priceUSDC} USDC per request (unless basic auth provided) [facilitators: ${connectionOpts.map(o => o.name).join(', ')}] [settle strategy: ${facilitator.strategy}]`)
 
         // x402 v2 exports use lowercase class names (x402ResourceServer).
         // eslint-disable-next-line new-cap
-        const resourceServer = new x402ResourceServer(facilitatorClients)
+        const resourceServer = new x402ResourceServer(facilitator.client)
         registerExactEvmScheme(resourceServer, {})
         const x402Mw = x402PaymentMiddleware(routes, resourceServer)
 
@@ -154,15 +152,12 @@ class Server {
       } else if (x402Settings.enabled && !basicAuthSettings.enabled) {
         const routes = buildX402Routes(this.config.apiPrefix)
         const connectionOpts = getFacilitatorConnectionOptions()
-        const facilitatorClients = connectionOpts.map(o => new HTTPFacilitatorClient({
-          url: o.url,
-          createAuthHeaders: o.requiresAuth ? createAuthHeader : null
-        }))
+        const facilitator = createFacilitatorClient(connectionOpts, createAuthHeader)
 
-        wlogger.info(`x402 v2 middleware enabled (basic auth disabled); enforcing ${x402Settings.priceUSDC} USDC per request [facilitators: ${connectionOpts.map(o => o.name).join(', ')}]`)
+        wlogger.info(`x402 v2 middleware enabled (basic auth disabled); enforcing ${x402Settings.priceUSDC} USDC per request [facilitators: ${connectionOpts.map(o => o.name).join(', ')}] [settle strategy: ${facilitator.strategy}]`)
 
         // eslint-disable-next-line new-cap
-        const resourceServer = new x402ResourceServer(facilitatorClients)
+        const resourceServer = new x402ResourceServer(facilitator.client)
         registerExactEvmScheme(resourceServer, {})
         app.use(x402PaymentMiddleware(routes, resourceServer))
       } else if (basicAuthSettings.enabled && !x402Settings.enabled) {

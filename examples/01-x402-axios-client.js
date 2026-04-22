@@ -15,13 +15,15 @@ import { x402Client, wrapAxiosWithPayment } from '@x402/axios'
 import { registerExactEvmScheme } from '@x402/evm/exact/client'
 import { toClientEvmSigner } from '@x402/evm'
 
-const baseURL = 'http://localhost:5942' // Local
-// const baseURL = 'https://x402.fullstack.cash' // Production
+// const baseURL = 'http://localhost:5942' // Local
+const baseURL = 'https://x402.fullstack.cash' // Production
 
 const endpointPath = '/v6/full-node/blockchain/getBlockchainInfo'
 const pKey = process.env.PRIVATE_KEY || process.env.EVM_PRIVATE_KEY || ''
+console.log('pKey: ', pKey)
 
-const x402Network = 'eip155:8453' // sepolia eip155:84532
+// const x402Network = 'eip155:84532' // sepolia eip155:84532
+const x402Network = 'eip155:8453' // mainnet eip155:8453
 
 if (!pKey) throw new Error('PRIVATE_KEY or EVM_PRIVATE_KEY env required!')
 
@@ -53,6 +55,7 @@ const api = wrapAxiosWithPayment(
   }),
   client
 )
+
 const request = async () => {
   console.log('\n\nStep 1: Making first call, expecting a 402 error returned.')
   try {
@@ -78,10 +81,12 @@ const request = async () => {
   } catch (err) {
     console.log('Step 2 failed. Expected a 200 success status code.')
     console.log(`Status code: ${err?.response?.status}`)
+    // console.log('err: ', err)
     console.log(
       `Error StatusText: ${JSON.stringify(err.response.statusText, null, 2)}`
     )
     console.log(`Error data: ${JSON.stringify(err.response.data, null, 2)}`)
+    console.log('payment-required header: ', err.response.headers['payment-required'])
 
     process.exit(1)
   }
