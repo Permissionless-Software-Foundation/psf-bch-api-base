@@ -15,7 +15,7 @@ The API surface remains focused on BCH infrastructure (BCH full node, Fulcrum, a
 - x402 network is configured using CAIP-2 format (for example `eip155:8453` for Base mainnet and `eip155:84532` for Base Sepolia).
 - Facilitator auth headers are generated using Coinbase CDP JWT auth (`FACILITATOR_KEY_ID` and `FACILITATOR_SECRET_KEY`) when using CDP endpoints.
 - Optional facilitators: **Dexter** (`PRIMARY_FACILITATOR=dexter`) and **PayAI** (`PRIMARY_FACILITATOR=payai`, default URL `https://facilitator.payai.network`, no API keys).
-- **Bazaar** discovery metadata on payment requirements via `@x402/extensions/bazaar`, and optional **multi-facilitator** mode (`ACTIVE_FACILITATORS=cdp,dexter,payai`) so clients can verify/settle through CDP, Dexter, or PayAI (`@x402/core` picks a matching facilitator).
+- **Bazaar** discovery metadata on payment requirements via `@x402/extensions/bazaar`, and optional **multi-facilitator** mode (`ACTIVE_FACILITATORS=cdp,dexter,payai`) with round-robin settle + failover across CDP, Dexter, and PayAI.
 
 ## Architecture
 
@@ -88,7 +88,7 @@ All configuration is loaded from environment variables (typically from `.env`).
 - `X402_PRICE_USDC` (USDC charged per request)
 - `x402_NETWORK` (CAIP-2 chain ID; e.g. `eip155:8453` or `eip155:84532`)
 - `PRIMARY_FACILITATOR` (default: `cdp`) — one of `cdp`, `dexter`, or `payai`. Used for **single-facilitator** mode when `ACTIVE_FACILITATORS` is unset; selects the default facilitator base URL unless `x402_FACILITATOR_URL` is set.
-- `ACTIVE_FACILITATORS` — optional comma-separated list (e.g. `dexter,payai`). When set with multi-facilitator mode, the server registers **multiple** `HTTPFacilitatorClient` instances. **`PRIMARY_FACILITATOR` is always first** in that list (x402 gives earlier facilitators precedence); remaining names follow in the order listed, deduped. Each facilitator uses its default base URL (`x402_FACILITATOR_URL` applies only in **single-facilitator** mode).
+- `ACTIVE_FACILITATORS` — optional comma-separated list (e.g. `dexter,payai`). When set with multi-facilitator mode, the server registers multiple facilitator backends. `PRIMARY_FACILITATOR` is always first in the active list; remaining names follow in listed order, deduped. Verify uses this order with fallback. Settle uses round-robin per `(x402Version, network, scheme)` with failover to remaining facilitators. Each facilitator uses its default base URL (`x402_FACILITATOR_URL` applies only in **single-facilitator** mode).
 - `X402_BAZAAR_ENABLED` (default: `true`) — attach Bazaar **discovery** extension to protected route payment requirements (for facilitator catalogs). Set `false` to disable.
 - `x402_FACILITATOR_URL` — optional override for the facilitator HTTP base URL (must expose `/verify`, `/settle`, and `/supported` like the x402 reference facilitator). When unset, the URL is derived from `PRIMARY_FACILITATOR`. **Ignored per-facilitator when `ACTIVE_FACILITATORS` lists more than one entry** (each entry uses its provider URL).
 - `PAYAI_FACILITATOR_URL` — optional; when `PRIMARY_FACILITATOR=payai` and `x402_FACILITATOR_URL` is unset, defaults to `https://facilitator.payai.network`.
@@ -154,6 +154,35 @@ PRIMARY_FACILITATOR=payai
 ```
 
 Protected endpoints return `402 Payment Required` when no valid payment is attached. x402-capable clients can pay and retry automatically.
+
+### 3b) Round-Robin Facilitator Mode (Settle)
+
+Use this mode when you want settlement load distributed across multiple facilitators while preserving compatibility for verify calls.
+
+```bash
+X402_ENABLED=true
+USE_BASIC_AUTH=false
+SERVER_BASE_ADDRESS=0xYourBaseAddress
+X402_PRICE_USDC=0.1
+x402_NETWORK=eip155:8453
+PRIMARY_FACILITATOR=cdp
+ACTIVE_FACILITATORS=cdp,dexter,payai
+FACILITATOR_KEY_ID=your_key_id
+FACILITATOR_SECRET_KEY=your_secret
+```
+
+How it works:
+
+- Verify path: tries facilitators in configured order (`PRIMARY_FACILITATOR` first), falling back on errors.
+- Settle path: uses round-robin rotation per payment kind (`x402Version + network + scheme`), starting from the next facilitator each successful settlement.
+- Settle failover: if the selected facilitator fails, the server tries the remaining facilitators in circular order for that request.
+- URL behavior: with more than one active facilitator, per-provider default URLs are used; `x402_FACILITATOR_URL` is only for single-facilitator mode.
+
+How to confirm it is active:
+
+1. Start the server and check startup logs for `settle strategy: round-robin-failover`.
+2. Send multiple paid requests to the same protected endpoint.
+3. Confirm settlement calls alternate over `cdp -> dexter -> payai` (with failover if one is unavailable).
 
 ### 4) x402 + Bearer Bypass
 
