@@ -18,7 +18,7 @@ import { dirname, join } from 'path'
 import config from '../src/config/index.js'
 import Controllers from '../src/controllers/index.js'
 import wlogger from '../src/adapters/wlogger.js'
-import { buildX402Routes, getX402Settings, getBasicAuthSettings, createAuthHeader, getFacilitatorConfig } from '../src/config/x402.js'
+import { buildX402Routes, getX402Settings, getBasicAuthSettings, createAuthHeader, getFacilitatorConnectionOptions } from '../src/config/x402.js'
 import { basicAuthMiddleware } from '../src/middleware/basic-auth.js'
 import DiscoveryRouter from '../src/controllers/discovery/router.js'
 
@@ -126,19 +126,17 @@ class Server {
         // X402_ENABLED=true AND USE_BASIC_AUTH=true: Apply x402 conditionally
         const routes = buildX402Routes(this.config.apiPrefix)
 
-        const primaryFacilitator = x402Settings.primaryFacilitator || 'cdp'
-        const facilitatorConfig = getFacilitatorConfig(primaryFacilitator)
-        const facilitatorOptions = {
-          url: facilitatorConfig.url,
-          createAuthHeaders: facilitatorConfig.requiresAuth ? createAuthHeader : null
-        }
+        const connectionOpts = getFacilitatorConnectionOptions()
+        const facilitatorClients = connectionOpts.map(o => new HTTPFacilitatorClient({
+          url: o.url,
+          createAuthHeaders: o.requiresAuth ? createAuthHeader : null
+        }))
 
-        wlogger.info(`x402 v2 middleware enabled with basic auth bypass; enforcing ${x402Settings.priceUSDC} USDC per request (unless basic auth provided) [facilitator: ${facilitatorConfig.name}]`)
+        wlogger.info(`x402 v2 middleware enabled with basic auth bypass; enforcing ${x402Settings.priceUSDC} USDC per request (unless basic auth provided) [facilitators: ${connectionOpts.map(o => o.name).join(', ')}]`)
 
-        const facilitatorClient = new HTTPFacilitatorClient(facilitatorOptions)
         // x402 v2 exports use lowercase class names (x402ResourceServer).
         // eslint-disable-next-line new-cap
-        const resourceServer = new x402ResourceServer(facilitatorClient)
+        const resourceServer = new x402ResourceServer(facilitatorClients)
         registerExactEvmScheme(resourceServer, {})
         const x402Mw = x402PaymentMiddleware(routes, resourceServer)
 
@@ -152,22 +150,19 @@ class Server {
 
         app.use(conditionalX402Middleware)
 
-        // Display facilitator running url
-        console.log(`Facilitator running on: ${facilitatorOptions.url}`)
+        console.log(`Facilitator(s): ${connectionOpts.map(o => `${o.name} → ${o.url}`).join(' | ')}`)
       } else if (x402Settings.enabled && !basicAuthSettings.enabled) {
         const routes = buildX402Routes(this.config.apiPrefix)
-        const primaryFacilitator = x402Settings.primaryFacilitator || 'cdp'
-        const facilitatorConfig = getFacilitatorConfig(primaryFacilitator)
-        const facilitatorOptions = {
-          url: facilitatorConfig.url,
-          createAuthHeaders: facilitatorConfig.requiresAuth ? createAuthHeader : null
-        }
+        const connectionOpts = getFacilitatorConnectionOptions()
+        const facilitatorClients = connectionOpts.map(o => new HTTPFacilitatorClient({
+          url: o.url,
+          createAuthHeaders: o.requiresAuth ? createAuthHeader : null
+        }))
 
-        wlogger.info(`x402 v2 middleware enabled (basic auth disabled); enforcing ${x402Settings.priceUSDC} USDC per request [facilitator: ${facilitatorConfig.name}]`)
+        wlogger.info(`x402 v2 middleware enabled (basic auth disabled); enforcing ${x402Settings.priceUSDC} USDC per request [facilitators: ${connectionOpts.map(o => o.name).join(', ')}]`)
 
-        const facilitatorClient = new HTTPFacilitatorClient(facilitatorOptions)
         // eslint-disable-next-line new-cap
-        const resourceServer = new x402ResourceServer(facilitatorClient)
+        const resourceServer = new x402ResourceServer(facilitatorClients)
         registerExactEvmScheme(resourceServer, {})
         app.use(x402PaymentMiddleware(routes, resourceServer))
       } else if (basicAuthSettings.enabled && !x402Settings.enabled) {

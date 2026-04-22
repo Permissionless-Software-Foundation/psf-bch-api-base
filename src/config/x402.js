@@ -1,5 +1,6 @@
 import config from './index.js'
 import { generateJwt } from '@coinbase/cdp-sdk/auth'
+import { declareDiscoveryExtension } from '@x402/extensions/bazaar'
 
 const DEFAULT_DESCRIPTION = 'Access to protected psf-bch-api resources'
 const DEFAULT_TIMEOUT_SECONDS = 120
@@ -18,6 +19,12 @@ const FACILITATORS = {
   dexter: {
     name: 'Dexter',
     url: 'https://x402.dexter.cash',
+    requiresAuth: false,
+    authType: 'none'
+  },
+  payai: {
+    name: 'PayAI',
+    url: 'https://facilitator.payai.network',
     requiresAuth: false,
     authType: 'none'
   }
@@ -54,26 +61,114 @@ export function buildX402Routes (apiPrefix = '/v6') {
   if (!payTo) throw new Error('SERVER_BASE_ADDRESS is required for x402 v2 payTo.')
   assertEvmPayTo(payTo)
 
-  return {
-    [routeKey]: {
-      accepts: [
-        {
-          scheme: 'exact',
-          payTo,
-          price: config.x402.priceUSDC,
-          network,
-          maxTimeoutSeconds: DEFAULT_TIMEOUT_SECONDS
-        }
-      ],
-      description: `${DEFAULT_DESCRIPTION} (${config.x402.priceUSDC} USDC)`,
-      mimeType: 'application/json'
-    }
+  const entry = {
+    accepts: [
+      {
+        scheme: 'exact',
+        payTo,
+        price: config.x402.priceUSDC,
+        network,
+        maxTimeoutSeconds: DEFAULT_TIMEOUT_SECONDS
+      }
+    ],
+    description: `${DEFAULT_DESCRIPTION} (${config.x402.priceUSDC} USDC)`,
+    mimeType: 'application/json'
   }
+
+  if (config.x402.bazaarEnabled) {
+    entry.extensions = declareDiscoveryExtension({
+      output: {
+        example: {
+          service: 'psf-bch-api',
+          apiPrefix: prefixWithSlash,
+          description: 'Bitcoin Cash full node, Fulcrum, and SLP indexer REST proxy (x402 USDC on Base)'
+        }
+      }
+    })
+  }
+
+  return {
+    [routeKey]: entry
+  }
+}
+
+/**
+ * Default facilitator order when ACTIVE_FACILITATORS lists CDP, Dexter, and PayAI (Bazaar-friendly multi-facilitator).
+ */
+export const DEFAULT_MULTI_FACILITATORS = ['cdp', 'dexter', 'payai']
+
+/**
+ * Per-facilitator HTTP base URL (no trailing slash). Used when multiple facilitators are active.
+ * @param {string} key
+ */
+export function getFacilitatorHttpUrl (key) {
+  const k = String(key || 'cdp').trim().toLowerCase()
+  if (k === 'dexter') return 'https://x402.dexter.cash'
+  if (k === 'payai') {
+    return (process.env.PAYAI_FACILITATOR_URL || 'https://facilitator.payai.network')
+      .trim()
+      .replace(/\/$/, '')
+  }
+  return 'https://api.cdp.coinbase.com/platform/v2/x402'
+}
+
+/**
+ * Resolved primary facilitator key (env PRIMARY_FACILITATOR, then config, then cdp).
+ * @returns {string}
+ */
+export function resolvePrimaryFacilitatorKey () {
+  const primaryRaw = (
+    process.env.PRIMARY_FACILITATOR ||
+    config.x402?.primaryFacilitator ||
+    'cdp'
+  ).trim().toLowerCase()
+  return FACILITATORS[primaryRaw] ? primaryRaw : 'cdp'
+}
+
+/**
+ * Active facilitator keys: PRIMARY_FACILITATOR is always first (x402 core gives earlier
+ * facilitator clients precedence). Remaining keys follow ACTIVE_FACILITATORS order, deduped.
+ * @returns {string[]}
+ */
+export function getActiveFacilitatorKeys () {
+  const primary = resolvePrimaryFacilitatorKey()
+  const raw = (process.env.ACTIVE_FACILITATORS || '').trim()
+  if (!raw) {
+    return [primary]
+  }
+  const fromEnv = raw.split(',').map(s => s.trim().toLowerCase()).filter(k => FACILITATORS[k])
+  if (fromEnv.length === 0) {
+    return [primary]
+  }
+  const rest = fromEnv.filter(k => k !== primary)
+  return [primary, ...rest]
+}
+
+/**
+ * Options for constructing one {@link import('@x402/core/server').HTTPFacilitatorClient} per facilitator.
+ * When only one facilitator is active, `url` is `config.x402.facilitatorUrl` so `x402_FACILITATOR_URL` still applies.
+ * @returns {{ key: string, name: string, url: string, requiresAuth: boolean }[]}
+ */
+export function getFacilitatorConnectionOptions () {
+  const keys = getActiveFacilitatorKeys()
+  return keys.map(key => {
+    const cfg = getFacilitatorConfig(key)
+    const url =
+      keys.length === 1 ? config.x402.facilitatorUrl : getFacilitatorHttpUrl(key)
+    return {
+      key,
+      name: cfg.name,
+      url,
+      requiresAuth: Boolean(cfg.requiresAuth)
+    }
+  })
 }
 
 export function getX402Settings () {
   return {
     enabled: Boolean(config.x402?.enabled),
+    bazaarEnabled: Boolean(config.x402?.bazaarEnabled),
+    activeFacilitatorKeys: getActiveFacilitatorKeys(),
     facilitatorUrl: config.x402?.facilitatorUrl,
     facilitatorKeyId: config.x402?.facilitatorKeyId,
     facilitatorSecretKey: config.x402?.facilitatorSecretKey,
@@ -214,11 +309,12 @@ export async function createAuthHeader () {
 
 /**
  * Get facilitator configuration by name
- * @param {string} name - Facilitator name ('cdp' or 'dexter')
+ * @param {string} name - Facilitator name (`cdp`, `dexter`, or `payai`)
  * @returns {Object} Facilitator config
  */
 export function getFacilitatorConfig (name = 'cdp') {
-  return FACILITATORS[name] || FACILITATORS.cdp
+  const key = String(name || 'cdp').trim().toLowerCase()
+  return FACILITATORS[key] || FACILITATORS.cdp
 }
 
 /**
@@ -227,6 +323,7 @@ export function getFacilitatorConfig (name = 'cdp') {
  * @returns {boolean}
  */
 export function facilitatorRequiresAuth (name = 'cdp') {
-  const cfg = FACILITATORS[name]
+  const key = String(name || 'cdp').trim().toLowerCase()
+  const cfg = FACILITATORS[key]
   return cfg ? cfg.requiresAuth : false
 }

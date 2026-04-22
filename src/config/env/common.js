@@ -48,16 +48,36 @@ const x402NetworkRaw =
   'eip155:8453'
 const x402Network = toV2Caip2Network(x402NetworkRaw)
 
+const primaryFacilitatorRaw = (process.env.PRIMARY_FACILITATOR || 'cdp').trim().toLowerCase()
+const x402PrimaryKeys = new Set(['cdp', 'dexter', 'payai'])
+const primaryFacilitator = x402PrimaryKeys.has(primaryFacilitatorRaw)
+  ? primaryFacilitatorRaw
+  : 'cdp'
+
+function resolveX402FacilitatorUrl () {
+  const explicit = (process.env.x402_FACILITATOR_URL || '').trim()
+  if (explicit) return explicit.replace(/\/$/, '')
+
+  if (primaryFacilitator === 'dexter') return 'https://x402.dexter.cash'
+  if (primaryFacilitator === 'payai') {
+    return (process.env.PAYAI_FACILITATOR_URL || 'https://facilitator.payai.network')
+      .trim()
+      .replace(/\/$/, '')
+  }
+  return 'https://api.cdp.coinbase.com/platform/v2/x402'
+}
+
 const x402Defaults = {
   enabled: normalizeBoolean(process.env.X402_ENABLED, true),
-  // CDP Facilitator: https://api.cdp.coinbase.com/platform/v2/x402
-  // Custom/Local Facilitator: http://localhost:4022
-  facilitatorUrl: process.env.x402_FACILITATOR_URL || 'https://api.cdp.coinbase.com/platform/v2/x402',
+  // Bazaar discovery extension on payment requirements (for facilitator catalogs). @x402/express loads @x402/extensions/bazaar when enabled.
+  bazaarEnabled: normalizeBoolean(process.env.X402_BAZAAR_ENABLED, true),
+  // Resolved from PRIMARY_FACILITATOR unless x402_FACILITATOR_URL is set (see resolveX402FacilitatorUrl).
+  facilitatorUrl: resolveX402FacilitatorUrl(),
   // EVM 0x… address for USDC settlement; required for x402 exact scheme (no legacy BCH default).
   serverAddress: (process.env.SERVER_BASE_ADDRESS || '').trim(),
   facilitatorKeyId: process.env.FACILITATOR_KEY_ID || '',
   facilitatorSecretKey: process.env.FACILITATOR_SECRET_KEY || '',
-  primaryFacilitator: process.env.PRIMARY_FACILITATOR || 'cdp',
+  primaryFacilitator,
   network: x402Network,
   priceUSDC,
   // Optional: USDC token contract (0x…). If unset, Base / Base Sepolia use built-in USDC addresses.
