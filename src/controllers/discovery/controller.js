@@ -3,16 +3,15 @@
 */
 
 import config from '../../config/index.js'
-import { getX402Settings } from '../../config/x402.js'
+import wlogger from '../../adapters/wlogger.js'
+import { getX402Settings, getX402WellKnownManifest as defaultGetX402WellKnownManifest } from '../../config/x402.js'
 import { getDiscoveryDocuments } from '../../discovery/build-documents.js'
-
-const BCH_MAINNET_CAIP2 = 'bip122:000000000000000000651ef99cb9fcbe'
-const BCH_NATIVE_ASSET = '0x0000000000000000000000000000000000000001'
-const X402_TIMEOUT_SECONDS = 60
 
 class DiscoveryController {
   constructor (localConfig = {}) {
     this.getX402Settings = localConfig.getX402Settings || getX402Settings
+    this.getX402WellKnownManifest =
+      localConfig.getX402WellKnownManifest || defaultGetX402WellKnownManifest
     this.getDiscoveryDocuments = localConfig.getDiscoveryDocuments || getDiscoveryDocuments
     this.apiPrefix = localConfig.apiPrefix || config.apiPrefix
 
@@ -36,47 +35,25 @@ class DiscoveryController {
   }
 
   /**
-   * @api {get} /.well-known/x402 x402-bch resource discovery
+   * @api {get} /.well-known/x402 x402 v2 resource discovery
    * @apiName X402Discovery
    * @apiGroup Discovery
-   * @apiDescription Returns x402-bch v2 resource and payment requirement metadata.
+   * @apiDescription Returns x402 v2 resource and payment metadata (Base USDC, `exact` scheme) — same payload as `/.well-known/x402.json`.
    */
   x402Manifest (req, res) {
     if (this.respondNotFoundWhenDisabled(res)) return
 
-    const x402 = this.getX402Settings()
     const apiPrefix = this.apiPrefix || '/v6'
-    const prefixWithSlash = apiPrefix.startsWith('/') ? apiPrefix : `/${apiPrefix}`
-
-    const payload = {
-      x402Version: 2,
-      network: BCH_MAINNET_CAIP2,
-      facilitator: {
-        url: x402.facilitatorUrl
-      },
-      resources: [
-        {
-          resource: `${prefixWithSlash}/*`,
-          type: 'http',
-          x402Version: 2,
-          accepts: [
-            {
-              scheme: 'utxo',
-              network: BCH_MAINNET_CAIP2,
-              amount: String(x402.priceSat),
-              description: `Access to protected psf-bch-api resources (${x402.priceSat} satoshis)`,
-              mimeType: 'application/json',
-              payTo: x402.serverAddress,
-              maxTimeoutSeconds: X402_TIMEOUT_SECONDS,
-              asset: BCH_NATIVE_ASSET,
-              extra: {}
-            }
-          ]
-        }
-      ]
+    try {
+      const payload = this.getX402WellKnownManifest(apiPrefix)
+      return res.status(200).json(payload)
+    } catch (err) {
+      wlogger.error('x402 well-known manifest error:', err)
+      return res.status(500).json({
+        error: 'x402 configuration error',
+        message: err instanceof Error ? err.message : String(err)
+      })
     }
-
-    return res.status(200).json(payload)
   }
 
   /**

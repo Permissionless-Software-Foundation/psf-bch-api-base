@@ -6,9 +6,8 @@ import { readFileSync, existsSync, readdirSync } from 'fs'
 import { resolve } from 'path'
 
 import config from '../config/index.js'
-import { getX402Settings } from '../config/x402.js'
+import { getX402AgentAuthPricing } from '../config/x402.js'
 
-const BCH_MAINNET_CAIP2 = 'bip122:000000000000000000651ef99cb9fcbe'
 const X402_SPEC_VERSION = 2
 
 let cachedDocs = null
@@ -90,7 +89,7 @@ function normalizePaths (endpoints) {
           description: 'Payment required when x402 is enabled'
         }
       },
-      'x-payment-model': 'x402-bch-v2'
+      'x-payment-model': 'x402-v2-exact-usdc'
     }
 
     paths[endpoint.path][endpoint.method.toLowerCase()] = op
@@ -134,13 +133,15 @@ function buildLlms (endpoints) {
   const lines = [
     '# psf-bch-api',
     '',
-    '> REST API proxy to Bitcoin Cash infrastructure with optional x402-bch monetized access.',
+    '> REST API proxy to Bitcoin Cash infrastructure with optional x402 (USDC on Base) monetized access.',
     '',
     '## Discovery',
     '- [OpenAPI document](/openapi.json): OpenAPI 3 projection generated from apiDoc annotations.',
     '- [Swagger document](/swagger.json): Swagger 2.0 compatibility projection.',
-    '- [x402 manifest](/.well-known/x402): x402-bch v2 payment requirement discovery.',
+    '- [x402 manifest](/.well-known/x402): x402 v2 payment requirement discovery (Base USDC).',
+    '- [x402.json](/.well-known/x402.json): same JSON as the x402 manifest (for tools that expect a `.json` path).',
     '- [Agent manifest](/.well-known/agent.json): draft agent capability surface.',
+    '- [agent.json](/agent.json): same as the agent manifest (convenience path).',
     '',
     '## API Groups'
   ]
@@ -157,7 +158,7 @@ function buildLlms (endpoints) {
 }
 
 function buildAgent (endpoints) {
-  const x402 = getX402Settings()
+  const pricing = getX402AgentAuthPricing()
   const actions = endpoints.map(endpoint => ({
     id: endpoint.operationId,
     description: endpoint.summary,
@@ -166,24 +167,48 @@ function buildAgent (endpoints) {
     method: endpoint.method
   }))
 
+  const auth = pricing
+    ? {
+        type: 'x402',
+        x402Version: X402_SPEC_VERSION,
+        required_for: actions.map(a => a.id),
+        pricing: {
+          scheme: pricing.scheme,
+          network: pricing.network,
+          payTo: pricing.payTo,
+          priceUSDC: String(pricing.priceUSDC),
+          facilitatorUrl: pricing.facilitatorUrl
+        }
+      }
+    : {
+        type: 'x402',
+        x402Version: X402_SPEC_VERSION,
+        required_for: actions.map(a => a.id),
+        pricing: {
+          note: 'Configure SERVER_BASE_ADDRESS, x402_NETWORK, and x402 for full pricing when X402 is enabled'
+        }
+      }
+
   return {
     awp_version: '0.1',
-    domain: 'localhost',
+    name: 'psf-bch-api',
+    description:
+      'REST API for BCH full node, Fulcrum, and SLP data; access via x402 USDC on Base or documented bypasses.',
+    domain: (process.env.PUBLIC_BASE_URL || '').trim() || null,
     intent: 'Programmatic BCH blockchain API access',
+    discovery: {
+      openapi: '/openapi.json',
+      x402: '/.well-known/x402',
+      x402_json: '/.well-known/x402.json',
+      agent: '/.well-known/agent.json',
+      agent_json: '/agent.json',
+      llms: '/llms.txt'
+    },
     capabilities: {
       batch_actions: false,
       streaming: false
     },
-    auth: {
-      type: 'x402-bch-v2',
-      required_for: actions.map(a => a.id),
-      pricing: {
-        amountSat: String(x402.priceSat),
-        payTo: x402.serverAddress,
-        network: BCH_MAINNET_CAIP2,
-        x402Version: X402_SPEC_VERSION
-      }
-    },
+    auth,
     actions
   }
 }

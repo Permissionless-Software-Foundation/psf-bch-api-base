@@ -21,6 +21,7 @@ import wlogger from '../src/adapters/wlogger.js'
 import { buildX402Routes, getX402Settings, getBasicAuthSettings, createAuthHeader, getFacilitatorConnectionOptions } from '../src/config/x402.js'
 import { basicAuthMiddleware } from '../src/middleware/basic-auth.js'
 import DiscoveryRouter from '../src/controllers/discovery/router.js'
+import DiscoveryController from '../src/controllers/discovery/controller.js'
 import { createFacilitatorClient } from '../src/lib/x402/facilitator-client-factory.js'
 
 // Load environment variables
@@ -259,7 +260,15 @@ class Server {
         res.sendFile(docsPath)
       })
 
-      // AI-friendly discovery endpoints
+      // AI-friendly discovery endpoints (aliases for tools that expect these paths; same payloads as DiscoveryRouter)
+      const discoveryForAi = new DiscoveryController()
+      app.get('/.well-known/x402.json', (req, res) => {
+        discoveryForAi.x402Manifest(req, res)
+      })
+      app.get('/agent.json', (req, res) => {
+        discoveryForAi.agentManifest(req, res)
+      })
+
       app.get('/llms.txt', (req, res) => {
         const llmsPath = join(__dirname, '..', 'public', 'llms.txt')
         res.setHeader('Content-Type', 'text/plain')

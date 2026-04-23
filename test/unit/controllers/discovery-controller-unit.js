@@ -14,8 +14,33 @@ describe('#discovery-controller.js', () => {
       getX402Settings: () => ({
         enabled,
         facilitatorUrl: 'http://localhost:4345/facilitator',
-        serverAddress: 'bitcoincash:qtestaddress',
-        priceSat: 200
+        serverAddress: '0x0000000000000000000000000000000000000001',
+        priceUSDC: '0.1',
+        network: 'eip155:8453'
+      }),
+      getX402WellKnownManifest: () => ({
+        x402Version: 2,
+        network: 'eip155:8453',
+        facilitator: { url: 'http://localhost:4345/facilitator' },
+        resources: [
+          {
+            resource: '/v6/*',
+            type: 'http',
+            x402Version: 2,
+            accepts: [
+              {
+                scheme: 'exact',
+                network: 'eip155:8453',
+                price: '0.1',
+                payTo: '0x0000000000000000000000000000000000000001',
+                description: 'test',
+                mimeType: 'application/json',
+                maxTimeoutSeconds: 120,
+                extra: {}
+              }
+            ]
+          }
+        ]
       }),
       getDiscoveryDocuments: () => ({
         openapi: { openapi: '3.0.3', paths: { '/v6/price/bchusd': {} } },
@@ -59,8 +84,8 @@ describe('#discovery-controller.js', () => {
       assert.equal(res.statusValue, 200)
       assert.equal(res.jsonData.x402Version, 2)
       assert.isArray(res.jsonData.resources)
-      assert.equal(res.jsonData.resources[0].accepts[0].scheme, 'utxo')
-      assert.equal(res.jsonData.resources[0].accepts[0].amount, '200')
+      assert.equal(res.jsonData.resources[0].accepts[0].scheme, 'exact')
+      assert.equal(res.jsonData.resources[0].accepts[0].price, '0.1')
     })
 
     it('should return openapi and swagger docs', async () => {
