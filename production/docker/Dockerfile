@@ -51,7 +51,7 @@ RUN git clone https://github.com/Permissionless-Software-Foundation/psf-bch-api-
 # and `stage` has the most up-to-date changes.
 WORKDIR /home/safeuser/psf-bch-api-base
 
-RUN git checkout round-robin-facilitator
+#RUN git checkout round-robin-facilitator
 
 # Install dependencies
 RUN npm install
