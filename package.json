@@ -18,18 +18,18 @@
   "description": "REST API proxy to Bitcoin Cash infrastructure",
   "dependencies": {
     "@coinbase/cdp-sdk": "1.45.0",
-    "@psf/bch-js": "7.1.14",
+    "@psf/bch-js": "7.1.15",
     "@x402/axios": "2.6.0",
     "@x402/core": "2.6.0",
     "@x402/evm": "2.6.0",
     "@x402/express": "2.6.0",
     "@x402/extensions": "2.6.0",
-    "axios": "1.7.7",
+    "axios": "1.20.0",
     "cors": "2.8.5",
     "dotenv": "16.3.1",
     "ethers": "6.13.5",
-    "express": "5.1.0",
-    "minimal-slp-wallet": "7.1.5",
+    "express": "5.3.0",
+    "minimal-slp-wallet": "7.1.7",
     "psffpp": "1.2.1",
     "slp-token-media": "1.2.10",
     "winston": "3.11.0",
@@ -46,5 +46,14 @@
   "apidoc": {
     "title": "psf-bch-api",
     "url": "http://localhost:3070"
+  },
+  "overrides": {
+    "@psf/bch-js": "7.1.15",
+    "axios": "1.20.0",
+    "bn.js": "4.12.5",
+    "handlebars": "4.7.10",
+    "p2wdb": {
+      "apidoc": "npm:empty-npm-package@1.0.0"
+    }
   }
 }
